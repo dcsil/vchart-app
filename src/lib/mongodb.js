@@ -20,9 +20,20 @@ async function connectToDatabase() {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       })
-      .then((mongoose) => mongoose);
+      .then((mongoose) => mongoose)
+      .catch((err) => {
+        console.error("MongoDB connection error:", err);
+        throw new Error("Failed to connect to MongoDB");
+      });
   }
-  cached.conn = await cached.promise;
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null; // Reset promise if connection fails
+    throw error;
+  }
+
   return cached.conn;
 }
 
