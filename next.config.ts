@@ -9,7 +9,7 @@ export default withSentryConfig(nextConfig, {
 // For all available options, see:
 // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-org: "eric-wo",
+org: "vchart",
 project: "javascript-nextjs",
 
 // Only print logs for uploading source maps in CI
