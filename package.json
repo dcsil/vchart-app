@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@sentry/nextjs": "^9.3.0",
+    "@logtail/node": "^0.5.2",
     "dotenv": "^16.4.7",
     "mongoose": "^8.9.7",
     "next": "15.1.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
