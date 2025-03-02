@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 
-const BETTER_STACK_TOKEN = process.env.BETTER_STACK_TOKEN || "biugVd7TdtBnhjKW6qAydKKC";
+const BETTER_STACK_TOKEN = process.env.BETTER_STACK_TOKEN || "";
 const BETTER_STACK_URL = "https://s1222213.eu-nbg-2.betterstackdata.com";
 
 async function sendLogToBetterStack(message: string, level: string = 'info') {
