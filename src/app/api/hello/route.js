@@ -1,6 +1,6 @@
 import connectToDatabase from "@/lib/mongodb";
 
-export async function GET(req) {
+export async function GET() {
   try {
     await connectToDatabase();
     return Response.json({ message: "Connected to MongoDB!" });

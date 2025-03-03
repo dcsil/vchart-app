@@ -33,14 +33,6 @@ export default function Home() {
       <div className={styles.card}>
         <h1 className={styles.title}>Welcome to VChart</h1>
         <p className={styles.message}>{message}</p>
-        <button
-          className="border border-black mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => {
-            log('Button was pressed on the Home page');
-          }}
-        >
-          Press Me
-        </button>
       </div>
 
       {/* Log Level Buttons */}
