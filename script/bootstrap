@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "Starting Developer Environment Setup..."
+echo "-----------------------------------------"
 
 # Make sure Node is installed
 if ! command -v node &> /dev/null; then
@@ -8,13 +9,23 @@ if ! command -v node &> /dev/null; then
   exit 1
 fi
 
+# Check for minimum Node version (>=16)
+NODE_VERSION=$(node -v | sed 's/v//')
+REQUIRED_VERSION=16
+if [ "$(printf '%s\n' "$REQUIRED_VERSION" "$NODE_VERSION" | sort -V | head -n1)" != "$REQUIRED_VERSION" ]; then
+  echo "ERROR: Node.js version must be >=16. You are running v$NODE_VERSION"
+  exit 1
+fi
+
 # Install project dependencies
 echo "Installing project dependencies..."
-npm install
+npm install || { echo "npm install failed!"; exit 1; }
 
-cd ..
+# Navigate to the project root (adjust if necessary)
+cd .. || { echo "Failed to change directory!"; exit 1; }
+
 # Run Next.js in development mode
 echo "Starting Next.js application..."
-npm run dev
+npm run dev || { echo "npm run dev failed!"; exit 1; }
 
 echo "Developer environment setup complete!"
