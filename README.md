@@ -7,6 +7,7 @@ Welcome to the VChart application! This project is built with Next.js.
 - [Installation](#installation)
 - [Developer Setup](#developer-setup)
 - [Available Scripts](#available-scripts)
+- [Deployed Website](#deployed-website)
 
 ## Installation
 
@@ -72,3 +73,8 @@ In the project directory, you can run:
 
 - **`npm run test`**  
   Launches the test runner using Jest.
+
+## Deployed Website
+
+The VChart application is live! You can view the deployed version at:
+[https://vchart-app-beta.vercel.app](https://vchart-app-beta.vercel.app/)
