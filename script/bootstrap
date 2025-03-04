@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "Starting Developer Environment Setup..."
+
+# Make sure Node is installed
+if ! command -v node &> /dev/null; then
+  echo "ERROR: Node.js is not installed. Install Node.js >=16 and re-run script."
+  exit 1
+fi
+
+# Install project dependencies
+echo "Installing project dependencies..."
+npm install
+
+cd ..
+# Run Next.js in development mode
+echo "Starting Next.js application..."
+npm run dev
+
+echo "Developer environment setup complete!"
