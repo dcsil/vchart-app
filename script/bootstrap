@@ -21,6 +21,7 @@ fi
 echo "Installing project dependencies..."
 npm install || { echo "npm install failed!"; exit 1; }
 
+echo "Finding .env file..."
 if [ ! -f .env ]; then
     echo "File not found!"
     echo "Copying example .env..."
