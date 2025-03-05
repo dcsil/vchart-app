@@ -21,8 +21,14 @@ fi
 echo "Installing project dependencies..."
 npm install || { echo "npm install failed!"; exit 1; }
 
-# Navigate to the project root (adjust if necessary)
-cd .. || { echo "Failed to change directory!"; exit 1; }
+if [ ! -f .env ]; then
+    echo "File not found!"
+    echo "Copying example .env..."
+
+    cp script/.env.example .env
+else
+    echo ".env found! Proceeding..."
+fi
 
 # Run Next.js in development mode
 echo "Starting Next.js application..."
