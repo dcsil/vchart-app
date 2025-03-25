@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { log } from "@/app/utils/log";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     
     return response;
   } catch (error) {
-    console.error('Logout error:', error);
+    log('Logout error: ' + error, 'error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

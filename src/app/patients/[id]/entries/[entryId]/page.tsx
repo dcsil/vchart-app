@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { format } from "date-fns";
 import { jsPDF } from "jspdf";
+import { log } from "@/app/utils/log";
 
 // Patient interface needed for full info on export
 interface Patient {
@@ -71,7 +72,7 @@ export default function EntryDetails() {
         if (patientData.patient) {
           setPatient(patientData.patient);
         } else {
-          console.error('Patient not found in response:', patientData);
+          log('Patient not found in response: ' + JSON.stringify(patientData), 'warn');
         }
         
         // Fetch entry details
@@ -98,7 +99,7 @@ export default function EntryDetails() {
           throw new Error('Entry not found');
         }
       } catch (err) {
-        console.error('Error fetching details:', err);
+        log('Error fetching details: ' + err, 'error');
         setError('Could not load entry details. Please try again later.');
       } finally {
         setLoading(false);
@@ -162,9 +163,9 @@ export default function EntryDetails() {
       });
       
       // Show success message (could add a toast here)
-      console.log('Entry updated successfully');
+      log('Entry updated successfully', 'info');
     } catch (err: any) {
-      console.error('Error updating entry:', err);
+      log('Error updating entry: ' + err, 'error');
       setSaveError(err.message || 'Failed to update. Please try again.');
     } finally {
       setIsSaving(false);
@@ -260,9 +261,9 @@ export default function EntryDetails() {
       // Save the PDF
       doc.save(`${patient.lastName}_${patient.firstName}_VitalSigns_${format(new Date(), "yyyyMMdd")}.pdf`);
       
-      console.log('PDF export completed successfully');
+      log('PDF export completed successfully', 'info');
     } catch (err) {
-      console.error('Error generating PDF:', err);
+      log('Error generating PDF: ' + err, 'error');
       setSaveError('Failed to generate PDF. Please try again.');
     } finally {
       setIsExporting(false);

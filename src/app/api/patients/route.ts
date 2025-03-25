@@ -4,6 +4,7 @@ import Patient, { IPatient } from '@/lib/models/Patient';
 import User from '@/lib/models/User';
 import mongoose from 'mongoose';
 import { cookies } from 'next/headers';
+import { log } from "@/app/utils/log";
 
 // GET - Fetch patients for the current user
 export async function GET(request: NextRequest) {
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching patients:', error);
+    log('Error fetching patients: ' + error, 'error');
     return NextResponse.json(
       { message: 'Failed to fetch patients' },
       { status: 500 }
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error adding patient:', error);
+    log('Error adding patient: ' + error, 'error');
     return NextResponse.json(
       { message: 'Failed to add patient' },
       { status: 500 }
@@ -216,7 +217,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error deleting patient:', error);
+    log('Error deleting patient: ' + error, 'error');
     return NextResponse.json(
       { message: 'Failed to delete patient' },
       { status: 500 }

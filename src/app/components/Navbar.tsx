@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { log } from "@/app/utils/log";
 
 export default function Navbar() {
   const [username, setUsername] = useState<string | null>(null);
@@ -34,7 +35,7 @@ export default function Navbar() {
       router.push('/login');
       router.refresh();
     } catch (error) {
-      console.error('Logout error:', error);
+      log('Logout error: ' + error, 'error');
     }
   };
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { log } from "@/app/utils/log";
 
 // Define patient interface
 interface Patient {
@@ -45,7 +46,7 @@ export default function Home() {
         const data = await response.json();
         setPatients(data.patients || []);
       } catch (err) {
-        console.error('Error fetching patients:', err);
+        log('Error fetching patients: ' + err, 'error');
         setError('Could not load patients. Please try again later.');
       } finally {
         setLoading(false);
@@ -70,12 +71,12 @@ export default function Home() {
       router.push('/login');
       router.refresh();
     } catch (error) {
-      console.error('Logout error:', error);
+      log('Logout error: ' + error, 'error');
     }
   };
 
   const handlePatientClick = (patientId: string) => {
-    console.log(`Patient ${patientId} clicked`);
+    log(`Patient ${patientId} clicked`, 'info');
     router.push(`/patients/${patientId}`);
   };
 
@@ -100,7 +101,7 @@ export default function Home() {
         prevPatients.filter(patient => patient._id !== patientId)
       );
     } catch (err) {
-      console.error('Error deleting patient:', err);
+      log('Error deleting patient: ' + err, 'error');
       // Could add a toast notification here for error feedback
     } finally {
       setDeletingPatientId(null);
@@ -165,7 +166,7 @@ export default function Home() {
       // Close the modal and reset form
       closeModal();
     } catch (err: any) {
-      console.error('Error adding patient:', err);
+      log('Error adding patient: ' + err, 'error');
       setFormError(err.message || 'Failed to add patient. Please try again.');
     } finally {
       setSubmitting(false);

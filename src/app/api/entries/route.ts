@@ -4,6 +4,7 @@ import Entry, { IEntry } from '@/lib/models/Entry';
 import Patient from '@/lib/models/Patient';
 import mongoose from 'mongoose';
 import { cookies } from 'next/headers';
+import { log } from "@/app/utils/log";
 
 // GET - Fetch entries for a patient
 export async function GET(request: NextRequest) {
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('Error fetching entries:', error);
+    log('Error fetching entries: ' + error, 'error');
     return NextResponse.json(
       { message: 'Failed to fetch entries' },
       { status: 500 }
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error adding entry:', error);
+    log('Error adding entry: ' + error, 'error');
     return NextResponse.json(
       { message: 'Failed to add entry' },
       { status: 500 }
@@ -216,7 +217,7 @@ export async function PUT(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error updating entry:', error);
+    log('Error updating entry: ' + error, 'error');
     return NextResponse.json(
       { message: 'Failed to update entry' },
       { status: 500 }

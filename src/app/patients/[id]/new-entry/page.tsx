@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { log } from "@/app/utils/log";
 
 export default function NewEntry() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function NewEntry() {
   };
   
   const handleMicrophoneClick = () => {
-    console.log('Microphone clicked - voice recording feature to be implemented');
+    log('Microphone clicked - voice recording feature to be implemented', 'debug');
     // Voice recording feature will be implemented later
   };
   
@@ -67,7 +68,7 @@ export default function NewEntry() {
       // On success, redirect back to patient details page
       router.push(`/patients/${patientId}`);
     } catch (err: any) {
-      console.error('Error saving entry:', err);
+      log('Error saving entry: ' + err, 'error');
       setError(err.message || 'Failed to save entry. Please try again.');
     } finally {
       setIsSubmitting(false);

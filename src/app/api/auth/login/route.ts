@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 // Import User model with proper typing
 import mongoose from 'mongoose';
 import User, { IUser } from '@/lib/models/User';
+import { log } from "@/app/utils/log";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     
     // Check if user exists
     const allUsers = await User.find();
-    console.log('All users:', allUsers);
+    log('All users: ' + JSON.stringify(allUsers.map(u => u.username)), 'debug');
     const user = await User.findOne({ username, password });
 
     if (!user) {
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    log('Login error: ' + error, 'error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

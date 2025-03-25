@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { format } from "date-fns";
+import { log } from "@/app/utils/log";
 
 // Patient interface
 interface Patient {
@@ -69,7 +70,7 @@ export default function PatientDetails() {
           throw new Error('Patient not found');
         }
       } catch (err) {
-        console.error('Error fetching patient details:', err);
+        log('Error fetching patient details: ' + err, 'error');
         setError('Could not load patient details. Please try again later.');
       } finally {
         setLoading(false);
@@ -99,7 +100,7 @@ export default function PatientDetails() {
         const data = await response.json();
         setEntries(data.entries || []);
       } catch (err) {
-        console.error('Error fetching patient entries:', err);
+        log('Error fetching patient entries: ' + err, 'error');
         setEntriesError('Failed to load patient entries');
       } finally {
         setEntriesLoading(false);
@@ -114,12 +115,12 @@ export default function PatientDetails() {
   };
 
   const handleViewEntry = (entryId: string) => {
-    console.log(`View entry ${entryId}`);
+    log(`View entry ${entryId}`, 'info');
     router.push(`/patients/${patientId}/entries/${entryId}`);
   };
 
   const handleAddEntry = () => {
-    console.log('Add new entry');
+    log('Add new entry', 'info');
     router.push(`/patients/${patientId}/new-entry`);
   };
 
