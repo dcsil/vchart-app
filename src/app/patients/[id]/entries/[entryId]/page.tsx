@@ -29,6 +29,18 @@ interface Entry {
   createdAt: string;
 }
 
+// Interface for the update payload
+interface EntryUpdatePayload {
+  id: string;
+  temperature?: string;
+  bloodPressure?: string;
+  pulseRate?: string;
+  respiratoryRate?: string;
+  oxygenSaturation?: string;
+  painLevel?: string;
+  reviewed?: boolean;
+}
+
 export default function EntryDetails() {
   const router = useRouter();
   const params = useParams();
@@ -123,7 +135,7 @@ export default function EntryDetails() {
       setSaveError("");
       
       // Prepare payload with form data and review status
-      const payload: any = {
+      const payload: EntryUpdatePayload = {
         id: entryId,
         reviewed: !reviewed
       };
@@ -158,15 +170,15 @@ export default function EntryDetails() {
       setReviewed(!reviewed);
       setEntry({
         ...entry,
-        ...payload,
+        ...(payload as Partial<Entry>),
         reviewed: !reviewed
       });
       
       // Show success message (could add a toast here)
       log('Entry updated successfully', 'info');
-    } catch (err: any) {
-      log('Error updating entry: ' + err, 'error');
-      setSaveError(err.message || 'Failed to update. Please try again.');
+    } catch (err: unknown) {
+      log('Error updating entry: ' + (err instanceof Error ? err.message : String(err)), 'error');
+      setSaveError(err instanceof Error ? err.message : 'Failed to update. Please try again.');
     } finally {
       setIsSaving(false);
     }

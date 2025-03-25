@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import { cookies } from 'next/headers';
-
-// Import User model with proper typing
-import mongoose from 'mongoose';
-import User, { IUser } from '@/lib/models/User';
+import User from '@/lib/models/User';
 import { log } from "@/app/utils/log";
 
 export async function POST(request: NextRequest) {

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { log } from "@/app/utils/log";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Create a response to clear the cookie
     const response = NextResponse.json(

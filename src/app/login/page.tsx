@@ -34,8 +34,8 @@ export default function Login() {
       setPassword('');
       router.push('/');
       router.refresh(); // Refresh the page to update auth state
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }

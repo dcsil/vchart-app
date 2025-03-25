@@ -165,9 +165,9 @@ export default function Home() {
       
       // Close the modal and reset form
       closeModal();
-    } catch (err: any) {
-      log('Error adding patient: ' + err, 'error');
-      setFormError(err.message || 'Failed to add patient. Please try again.');
+    } catch (err: unknown) {
+      log('Error adding patient: ' + (err instanceof Error ? err.message : String(err)), 'error');
+      setFormError(err instanceof Error ? err.message : 'Failed to add patient. Please try again.');
     } finally {
       setSubmitting(false);
     }

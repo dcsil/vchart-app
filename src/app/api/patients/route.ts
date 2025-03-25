@@ -3,7 +3,6 @@ import connectToDatabase from '@/lib/mongodb';
 import Patient, { IPatient } from '@/lib/models/Patient';
 import User from '@/lib/models/User';
 import mongoose from 'mongoose';
-import { cookies } from 'next/headers';
 import { log } from "@/app/utils/log";
 
 // GET - Fetch patients for the current user
@@ -61,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all patients based on user's patient array
-    let patients = [];
+    let patients: IPatient[] = [];
     if (user.patients && user.patients.length > 0) {
       patients = await Patient.find({
         _id: { $in: user.patients }
@@ -135,7 +134,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add the patient ID to the user's patients array
-    user.patients.push(patient._id);
+    user.patients.push(patient._id as unknown as mongoose.Types.ObjectId);
     await user.save();
 
     return NextResponse.json(

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import Entry, { IEntry } from '@/lib/models/Entry';
+import Entry from '@/lib/models/Entry';
 import Patient from '@/lib/models/Patient';
 import mongoose from 'mongoose';
-import { cookies } from 'next/headers';
 import { log } from "@/app/utils/log";
 
 // GET - Fetch entries for a patient

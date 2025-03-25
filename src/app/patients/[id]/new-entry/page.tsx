@@ -67,9 +67,9 @@ export default function NewEntry() {
       
       // On success, redirect back to patient details page
       router.push(`/patients/${patientId}`);
-    } catch (err: any) {
-      log('Error saving entry: ' + err, 'error');
-      setError(err.message || 'Failed to save entry. Please try again.');
+    } catch (err: unknown) {
+      log('Error saving entry: ' + (err instanceof Error ? err.message : String(err)), 'error');
+      setError(err instanceof Error ? err.message : 'Failed to save entry. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
