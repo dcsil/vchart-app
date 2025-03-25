@@ -163,9 +163,7 @@ export default function EntryDetails() {
         const data = await response.json();
         throw new Error(data.message || 'Failed to update review status');
       }
-      
-      const data = await response.json();
-      
+            
       // Update local state
       setReviewed(!reviewed);
       setEntry({
@@ -189,6 +187,7 @@ export default function EntryDetails() {
       const date = new Date(dateString);
       return format(date, "MMM d, yyyy - h:mm a");
     } catch (error) {
+      log('Error formatting date: ' + error, 'error');
       return dateString;
     }
   };

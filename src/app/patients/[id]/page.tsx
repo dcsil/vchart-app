@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
 import { format } from "date-fns";
 import { log } from "@/app/utils/log";
 
@@ -130,6 +129,7 @@ export default function PatientDetails() {
       const date = new Date(dateString);
       return format(date, "MMM d, yyyy - h:mm a");
     } catch (error) {
+      log('Error formatting date: ' + error, 'error');
       return dateString;
     }
   };
