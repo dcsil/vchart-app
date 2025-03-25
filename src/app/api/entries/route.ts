@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     if (!patient.entries) {
       patient.entries = [];
     }
-    patient.entries.push(entry._id);
+    patient.entries.push(entry._id as unknown as mongoose.Types.ObjectId);
     await patient.save();
 
     return NextResponse.json(
