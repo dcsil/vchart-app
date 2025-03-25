@@ -39,25 +39,25 @@ export default function Home() {
       <div className={styles.buttonGroup}>
         <button
           className="border border-black mt-4 mx-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => log('Debug button pressed', 'debug')}
+          onClick={() => log("Debug button pressed", "debug")}
         >
           Debug
         </button>
         <button
           className="border border-black mt-4 mx-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          onClick={() => log('Info button pressed', 'info')}
+          onClick={() => log("Info button pressed", "info")}
         >
           Info
         </button>
         <button
           className="border border-black mt-4 mx-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-          onClick={() => log('Warn button pressed', 'warn')}
+          onClick={() => log("Warn button pressed", "warn")}
         >
           Warn
         </button>
         <button
           className="border border-black mt-4 mx-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          onClick={() => log('Error button pressed', 'error')}
+          onClick={() => log("Error button pressed", "error")}
         >
           Error
         </button>
