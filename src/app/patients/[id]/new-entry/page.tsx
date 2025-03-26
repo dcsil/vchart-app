@@ -32,12 +32,7 @@ export default function NewEntry() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate all fields
-    if (!temperature || !bloodPressure || !pulseRate || 
-        !respiratoryRate || !oxygenSaturation || !painLevel) {
-      setError("All fields are required");
-      return;
-    }
+    // No field validation - all fields are optional
     
     try {
       setIsSubmitting(true);

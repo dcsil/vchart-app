@@ -23,27 +23,21 @@ const EntrySchema = new mongoose.Schema({
   },
   temperature: {
     type: String,
-    required: [true, 'Temperature is required'],
   },
   bloodPressure: {
     type: String,
-    required: [true, 'Blood pressure is required'],
   },
   pulseRate: {
     type: String,
-    required: [true, 'Pulse rate is required'],
   },
   respiratoryRate: {
     type: String,
-    required: [true, 'Respiratory rate is required'],
   },
   oxygenSaturation: {
     type: String,
-    required: [true, 'Oxygen saturation is required'],
   },
   painLevel: {
     type: String,
-    required: [true, 'Pain level is required'],
   },
   reviewed: {
     type: Boolean,

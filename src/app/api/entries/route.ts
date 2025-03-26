@@ -93,10 +93,9 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     // Validate required fields
-    if (!patientId || !temperature || !bloodPressure || !pulseRate || 
-        !respiratoryRate || !oxygenSaturation || !painLevel) {
+    if (!patientId) {
       return NextResponse.json(
-        { message: 'All fields are required' },
+        { message: 'Patient ID is required' },
         { status: 400 }
       );
     }
