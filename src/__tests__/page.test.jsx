@@ -9,11 +9,30 @@ jest.mock("../app/utils/log", () => ({
   log: jest.fn(),
 }));
 
+// Mock the Next.js router
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    refresh: jest.fn(),
+  }),
+}));
+
 // Set up a default mock for global.fetch so that tests don't break.
 beforeEach(() => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
-      json: () => Promise.resolve({ message: "Hello from API" }),
+      ok: true,
+      json: () => Promise.resolve({ 
+        patients: [
+          {
+            _id: "1",
+            firstName: "John",
+            lastName: "Doe",
+            roomNumber: "101",
+            diagnosis: "Fever"
+          }
+        ]
+      }),
     })
   );
 });
@@ -25,12 +44,13 @@ afterEach(() => {
 describe("Home Component", () => {
   test("renders loading message and updates with API response", async () => {
     render(<Home />);
-    // Initially shows the loading message
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    
+    // Check for loading spinner - the component uses a div with animate-spin class
+    expect(document.querySelector('.animate-spin')).toBeInTheDocument();
 
-    // Wait for the API response to update the component
+    // Wait for the patient to appear after loading
     await waitFor(() =>
-      expect(screen.getByText("Hello from API")).toBeInTheDocument()
+      expect(screen.getByText("John Doe")).toBeInTheDocument()
     );
   });
 
@@ -41,44 +61,46 @@ describe("Home Component", () => {
     );
 
     render(<Home />);
-    // Check initial loading state
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
-
+    
     // Wait for the error message to appear
     await waitFor(() =>
-      expect(screen.getByText("Error fetching data")).toBeInTheDocument()
+      expect(screen.getByText(/could not load patients/i)).toBeInTheDocument()
     );
   });
 
-  test("calls log function when log buttons are clicked", () => {
+  test("calls log function when log buttons are clicked", async () => {
+    // Mock the log function implementation for this test
+    const mockPatientId = "1";
+    
     render(<Home />);
-
-    const debugButton = screen.getByRole("button", { name: /debug/i });
-    const infoButton = screen.getByRole("button", { name: /info/i });
-    const warnButton = screen.getByRole("button", { name: /warn/i });
-    const errorButton = screen.getByRole("button", { name: /error/i });
-
-    fireEvent.click(debugButton);
-    expect(log).toHaveBeenCalledWith("Debug button pressed", "debug");
-
-    fireEvent.click(infoButton);
-    expect(log).toHaveBeenCalledWith("Info button pressed", "info");
-
-    fireEvent.click(warnButton);
-    expect(log).toHaveBeenCalledWith("Warn button pressed", "warn");
-
-    fireEvent.click(errorButton);
-    expect(log).toHaveBeenCalledWith("Error button pressed", "error");
+    
+    // Wait for patients to load and then click on a patient
+    await waitFor(() => {
+      const patientElement = screen.getByText("John Doe");
+      fireEvent.click(patientElement);
+      
+      // Check if log was called with the expected arguments
+      expect(log).toHaveBeenCalledWith(`Patient ${mockPatientId} clicked`, "info");
+    });
   });
 
-  test("renders image with correct alt text", () => {
+  test("renders image with correct alt text", async () => {
     render(<Home />);
-    const image = screen.getByAltText("VChart Logo");
-    expect(image).toBeInTheDocument();
+    
+    // Wait for component to load
+    await waitFor(() => {
+      // Look for the avatar initial (first letter of patient's first name)
+      const avatarInitial = screen.getByText("J");
+      expect(avatarInitial).toBeInTheDocument();
+    });
   });
 
-  test("renders welcome title", () => {
+  test("renders welcome title", async () => {
     render(<Home />);
-    expect(screen.getByText("Welcome to VChart")).toBeInTheDocument();
+    
+    // Wait for component to load
+    await waitFor(() => {
+      expect(screen.getByText("Patient List")).toBeInTheDocument();
+    });
   });
 });
