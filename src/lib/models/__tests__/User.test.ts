@@ -6,6 +6,12 @@ interface MockSchemaWithTypes extends jest.Mock {
   };
 }
 
+interface MockMongoose {
+  Schema: MockSchemaWithTypes;
+  model: jest.Mock;
+  models: Record<string, unknown>;
+}
+
 jest.mock('mongoose', () => {
   const mockSchema = jest.fn() as MockSchemaWithTypes;
   const mockModel = jest.fn().mockReturnValue('MockUserModel');
@@ -20,15 +26,15 @@ jest.mock('mongoose', () => {
 });
 
 describe('User Model', () => {
-  let mongoose: any;
+  let mongooseInstance: MockMongoose;
   
   beforeEach(() => {
     jest.clearAllMocks();
     
-    mongoose = require('mongoose');
+    mongooseInstance = jest.requireMock('mongoose') as MockMongoose;
     
     jest.isolateModules(() => {
-      require('../User');
+      jest.requireActual('../User');
     });
   });
   
@@ -37,7 +43,7 @@ describe('User Model', () => {
   });
   
   it('should create model with correct name and collection', () => {
-    const modelCalls = mongoose.model.mock.calls;
+    const modelCalls = mongooseInstance.model.mock.calls;
     expect(modelCalls.length).toBeGreaterThan(0);
     
     const lastCall = modelCalls[modelCalls.length - 1];
@@ -46,18 +52,18 @@ describe('User Model', () => {
   });
   
   it('should check for username and password requirements in schema', () => {
-    const schemaCall = mongoose.Schema.mock.calls[0];
+    const schemaCall = mongooseInstance.Schema.mock.calls[0];
     expect(schemaCall).toBeDefined();
     
-    expect(mongoose.Schema).toHaveBeenCalled();
+    expect(mongooseInstance.Schema).toHaveBeenCalled();
   });
   
   it('should check for existing model before creating a new one', () => {
     jest.isolateModules(() => {
-      const mockMongoose = require('mongoose');
+      const mockMongoose = jest.requireMock('mongoose') as MockMongoose;
       mockMongoose.models = { User: 'ExistingModel' };
       
-      require('../User');
+      jest.requireActual('../User');
       
       expect('User' in mockMongoose.models).toBe(false);
     });

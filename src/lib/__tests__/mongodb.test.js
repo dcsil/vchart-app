@@ -1,6 +1,8 @@
+// Setting up environment variables for testing
 const MONGODB_URI = 'mongodb://localhost:27017/test';
 process.env.MONGODB_URI = MONGODB_URI;
 
+// Use jest.mock instead of require
 jest.mock('mongoose', () => ({
   connect: jest.fn().mockImplementation(() => {
     return Promise.resolve({ connection: 'mocked-connection' });
@@ -11,8 +13,8 @@ jest.mock('@/app/utils/log', () => ({
   log: jest.fn()
 }));
 
-const mongoose = require('mongoose');
-const { log } = require('@/app/utils/log');
+// Import mocked modules
+import mongoose from 'mongoose';
 
 describe('MongoDB Connection Utility', () => {
   let connectToDatabase;
@@ -27,7 +29,8 @@ describe('MongoDB Connection Utility', () => {
       delete global.mongoose;
     }
     
-    connectToDatabase = require('../mongodb').default;
+    // Need to use dynamic import for this specific case
+    connectToDatabase = jest.requireActual('../mongodb').default;
   });
 
   afterAll(() => {
@@ -51,7 +54,7 @@ describe('MongoDB Connection Utility', () => {
     jest.resetModules();
     
     expect(() => {
-      require('../mongodb');
+      jest.requireActual('../mongodb');
     }).toThrow('Please define MONGODB_URI in .env.local');
     
     process.env.MONGODB_URI = originalUri;

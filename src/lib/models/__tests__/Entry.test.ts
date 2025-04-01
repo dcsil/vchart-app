@@ -6,6 +6,12 @@ interface MockSchemaWithTypes extends jest.Mock {
   };
 }
 
+interface MockMongoose {
+  Schema: MockSchemaWithTypes;
+  model: jest.Mock;
+  models: Record<string, unknown>;
+}
+
 jest.mock('mongoose', () => {
   const mockSchema = jest.fn() as MockSchemaWithTypes;
   const mockModel = jest.fn().mockReturnValue('MockEntryModel');
@@ -20,15 +26,17 @@ jest.mock('mongoose', () => {
 });
 
 describe('Entry Model', () => {
-  let mongoose: any;
+  let mongooseInstance: MockMongoose;
   
   beforeEach(() => {
     jest.clearAllMocks();
     
-    mongoose = require('mongoose');
+    // Get the mocked mongoose instance
+    mongooseInstance = jest.requireMock('mongoose') as MockMongoose;
     
     jest.isolateModules(() => {
-      require('../Entry');
+      // This is a dynamic import during test, which is allowed
+      jest.requireActual('../Entry');
     });
   });
   
@@ -37,7 +45,7 @@ describe('Entry Model', () => {
   });
   
   it('should create model with correct name and collection', () => {
-    const modelCalls = mongoose.model.mock.calls;
+    const modelCalls = mongooseInstance.model.mock.calls;
     expect(modelCalls.length).toBeGreaterThan(0);
     
     const lastCall = modelCalls[modelCalls.length - 1];
@@ -47,10 +55,10 @@ describe('Entry Model', () => {
   
   it('should check for existing model before creating a new one', () => {
     jest.isolateModules(() => {
-      const mockMongoose = require('mongoose');
+      const mockMongoose = jest.requireMock('mongoose') as MockMongoose;
       mockMongoose.models = { Entry: 'ExistingModel' };
       
-      require('../Entry');
+      jest.requireActual('../Entry');
       
       expect('Entry' in mockMongoose.models).toBe(false);
     });
