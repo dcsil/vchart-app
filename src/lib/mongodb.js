@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { log } from "@/app/utils/log";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -19,7 +20,7 @@ async function connectToDatabase() {
       .connect(MONGODB_URI)
       .then((mongoose) => mongoose)
       .catch((err) => {
-        console.error("MongoDB connection error:", err);
+        log('MongoDB connection error: ' + err, 'error');
         throw new Error("Failed to connect to MongoDB");
       });
   }
