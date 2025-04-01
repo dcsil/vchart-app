@@ -9,12 +9,15 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
-    // Convert boolean props to strings for React
-    const imgProps = { ...props };
+  default: (props: { src: string; alt: string; width?: number; height?: number; priority?: boolean; className?: string; [key: string]: unknown }) => {
+    // Create a copy of props to avoid modifying the original
+    const imgProps: Record<string, unknown> = { ...props };
+    
+    // Handle boolean conversions
     if (typeof imgProps.priority === 'boolean') {
-      imgProps.priority = imgProps.priority.toString();
+      imgProps.priority = String(imgProps.priority);
     }
+    
     return <img {...imgProps} />;
   },
 }));

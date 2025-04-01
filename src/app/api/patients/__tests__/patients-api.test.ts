@@ -56,9 +56,7 @@ jest.mock('@/app/utils/log', () => ({
 import connectToDatabase from '@/lib/mongodb';
 import Patient from '@/lib/models/Patient';
 import User from '@/lib/models/User';
-import { log } from '@/app/utils/log';
 import { GET, POST, DELETE } from '../route';
-import mongoose from 'mongoose';
 
 describe('Patients API Endpoints', () => {
   beforeEach(() => {

@@ -38,7 +38,7 @@ describe('Login API Route', () => {
     jest.clearAllMocks();
   });
   
-  const createMockRequest = (body: any) => {
+  const createMockRequest = (body: Record<string, unknown>) => {
     return {
       json: jest.fn().mockResolvedValue(body),
     } as unknown as NextRequest;
@@ -137,10 +137,8 @@ describe('Login API Route', () => {
     
     await POST(mockRequest);
     
-    // Check error is logged
     expect(log).toHaveBeenCalledWith(expect.stringContaining('Login error'), 'error');
     
-    // Check 500 response
     expect(NextResponse.json).toHaveBeenCalledWith(
       { message: 'Internal server error' },
       { status: 500 }

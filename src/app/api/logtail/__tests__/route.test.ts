@@ -10,7 +10,7 @@ describe('Logtail API Route', () => {
     jest.clearAllMocks();
   });
 
-  const createMockRequest = (body: any) => {
+  const createMockRequest = (body: Record<string, unknown>) => {
     return {
       json: jest.fn().mockResolvedValue(body),
     } as unknown as NextRequest;
@@ -58,7 +58,7 @@ describe('Logtail API Route', () => {
       level: 'error' 
     });
     
-    const response = await POST(req);
+    await POST(req);
 
     const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(fetchCall[1].body);

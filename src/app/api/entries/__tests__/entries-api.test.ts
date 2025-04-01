@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 jest.mock('next/server', () => {
   const originalModule = jest.requireActual('next/server');
@@ -111,7 +111,6 @@ import Entry from '@/lib/models/Entry';
 import Patient from '@/lib/models/Patient';
 import { log } from '@/app/utils/log';
 import { GET, POST, PUT } from '../route';
-import mongoose from 'mongoose';
 
 describe('Entries API Endpoints', () => {
   beforeEach(() => {

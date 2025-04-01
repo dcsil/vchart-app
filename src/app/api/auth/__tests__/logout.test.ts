@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { POST } from '../logout/route';
 
 jest.mock('@/app/utils/log', () => ({
