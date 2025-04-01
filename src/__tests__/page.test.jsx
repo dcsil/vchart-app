@@ -4,12 +4,10 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Home from "../app/page";
 import { log } from "../app/utils/log";
 
-// Mock the log utility
 jest.mock("../app/utils/log", () => ({
   log: jest.fn(),
 }));
 
-// Mock the Next.js router
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
@@ -17,7 +15,6 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-// Set up a default mock for global.fetch so that tests don't break.
 beforeEach(() => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
@@ -45,17 +42,16 @@ describe("Home Component", () => {
   test("renders loading message and updates with API response", async () => {
     render(<Home />);
     
-    // Check for loading spinner - the component uses a div with animate-spin class
+    // Check for loading spinner
     expect(document.querySelector('.animate-spin')).toBeInTheDocument();
 
-    // Wait for the patient to appear after loading
+    // Wait for the patient to appear
     await waitFor(() =>
       expect(screen.getByText("John Doe")).toBeInTheDocument()
     );
   });
 
   test("displays error message when API call fails", async () => {
-    // Override fetch to simulate a failure
     global.fetch.mockImplementationOnce(() =>
       Promise.reject(new Error("API error"))
     );
@@ -69,12 +65,10 @@ describe("Home Component", () => {
   });
 
   test("calls log function when log buttons are clicked", async () => {
-    // Mock the log function implementation for this test
     const mockPatientId = "1";
     
     render(<Home />);
     
-    // Wait for patients to load and then click on a patient
     await waitFor(() => {
       const patientElement = screen.getByText("John Doe");
       fireEvent.click(patientElement);
@@ -87,9 +81,8 @@ describe("Home Component", () => {
   test("renders image with correct alt text", async () => {
     render(<Home />);
     
-    // Wait for component to load
     await waitFor(() => {
-      // Look for the avatar initial (first letter of patient's first name)
+      // Look for the avatar initial
       const avatarInitial = screen.getByText("J");
       expect(avatarInitial).toBeInTheDocument();
     });
@@ -98,7 +91,6 @@ describe("Home Component", () => {
   test("renders welcome title", async () => {
     render(<Home />);
     
-    // Wait for component to load
     await waitFor(() => {
       expect(screen.getByText("Patient List")).toBeInTheDocument();
     });
