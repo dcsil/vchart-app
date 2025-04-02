@@ -11,27 +11,33 @@ const createJestConfig = nextJest({
 });
 
 const config: Config = {
-  // Automatically clear mock calls, instances, contexts and results before every test
   clearMocks: true,
 
-  // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
 
-  // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
 
-  // Indicates which provider should be used to instrument code for coverage
+  collectCoverageFrom: [
+    "src/**/*.{js,jsx,ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/_*.{js,jsx,ts,tsx}",
+    "!**/node_modules/**",
+    "!**/.next/**"
+  ],
+
   coverageProvider: "v8",
 
   testEnvironment: "jsdom",
 
   moduleNameMapper: {
-    // ...
+    "^@/app/(.*)$": "<rootDir>/src/app/$1",
+    "^@/lib/(.*)$": "<rootDir>/src/lib/$1",
     "^@/src/(.*)$": "<rootDir>/src/$1",
   },
+
+  moduleDirectories: ["node_modules", "<rootDir>"],
 
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
 export default createJestConfig(config);
