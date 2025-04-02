@@ -73,7 +73,7 @@ export default function NewEntry() {
           console.error("Error parsing Cohere response:", error);
         }
       }
-    }, 200); // 2-second debounce
+    }, 500); // 2-second debounce
 
     return () => clearTimeout(timer);
   }, [transcript, interimResult]);
