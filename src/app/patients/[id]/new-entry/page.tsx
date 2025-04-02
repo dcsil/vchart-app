@@ -61,12 +61,14 @@ export default function NewEntry() {
       if (cohereResponse) {
         try {
           const parsed = JSON.parse(cohereResponse);
-          setTemperature(parsed.temperature || "");
-          setBloodPressure(parsed.bloodPressure || "");
-          setPulseRate(parsed.pulseRate || "");
-          setRespiratoryRate(parsed.respiratoryRate || "");
-          setOxygenSaturation(parsed.oxygenSaturation || "");
-          setPainLevel(parsed.painLevel || "");
+          if (parsed.temperature) setTemperature(parsed.temperature);
+          if (parsed.bloodPressure) setBloodPressure(parsed.bloodPressure);
+          if (parsed.pulseRate) setPulseRate(parsed.pulseRate);
+          if (parsed.respiratoryRate)
+            setRespiratoryRate(parsed.respiratoryRate);
+          if (parsed.oxygenSaturation)
+            setOxygenSaturation(parsed.oxygenSaturation);
+          if (parsed.painLevel) setPainLevel(parsed.painLevel);
         } catch (error) {
           console.error("Error parsing Cohere response:", error);
         }
