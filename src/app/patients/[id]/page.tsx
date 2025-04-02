@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import { format } from "date-fns";
 import { log } from "@/app/utils/log";
 
-// Patient interface
 interface Patient {
   _id: string;
   firstName: string;
@@ -14,7 +13,6 @@ interface Patient {
   diagnosis: string;
 }
 
-// Entry interface
 interface Entry {
   _id: string;
   patientId: string;
@@ -40,7 +38,6 @@ export default function PatientDetails() {
   const [error, setError] = useState("");
   const [entriesError, setEntriesError] = useState("");
   
-  // Fetch patient details
   useEffect(() => {
     const fetchPatientDetails = async () => {
       try {
@@ -55,7 +52,6 @@ export default function PatientDetails() {
         
         const data = await response.json();
         
-        // Find the patient in the returned data
         if (data.patients && Array.isArray(data.patients)) {
           const foundPatient = data.patients.find((p: Patient) => p._id === patientId);
           if (foundPatient) {
@@ -89,7 +85,6 @@ export default function PatientDetails() {
       try {
         setEntriesLoading(true);
         
-        // Fetch entries from API
         const response = await fetch(`/api/entries?patientId=${patientId}`);
         
         if (!response.ok) {
