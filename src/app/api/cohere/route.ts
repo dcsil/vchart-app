@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const message = `Generate a JSON object from the following transcript of a nurse-patient interaction by extracting these fields: temperature, bloodPressure, pulseRate, respiratoryRate, oxygenSaturation, and painLevel.\n\n<transcript>\n${transcript}\n</transcript>`;
+  const message = `Generate a JSON object from the following transcript of a nurse by extracting these fields: temperature, bloodPressure, pulseRate in bpm, respiratoryRate in breaths/minute, oxygenSaturation as %, and painLevel from 0-10. If any of the above fields are not mentioned, return empty strings for those.\n\n<transcript>\n${transcript}\n</transcript>`;
 
   const response = await fetch("https://api.cohere.ai/v1/chat", {
     method: "POST",
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
           ],
         },
       },
+      temperature: 0.3,
     }),
   });
 
