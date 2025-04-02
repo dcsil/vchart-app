@@ -13,8 +13,8 @@ export function useTranscription() {
   const startListening = async () => {
     try {
       const speechConfig = sdk.SpeechConfig.fromSubscription(
-        process.env.AZURE_SPEECH_KEY!,
-        process.env.AZURE_SPEECH_REGION!
+        process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY!,
+        process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION!
       );
       speechConfig.speechRecognitionLanguage = "en-US";
 
