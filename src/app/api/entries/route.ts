@@ -1,19 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Entry from '@/lib/models/Entry';
-import Patient from '@/lib/models/Patient';
-import mongoose from 'mongoose';
+import { NextRequest, NextResponse } from "next/server";
+import connectToDatabase from "@/lib/mongodb";
+import Entry from "@/lib/models/Entry";
+import Patient from "@/lib/models/Patient";
+import mongoose from "mongoose";
 import { log } from "@/app/utils/log";
 
 // GET - Fetch entries for a patient
 export async function GET(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const username = request.cookies.get("auth-session")?.value;
 
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -23,46 +23,40 @@ export async function GET(request: NextRequest) {
 
     // Get patient ID and entry ID from the URL
     const { searchParams } = new URL(request.url);
-    const patientId = searchParams.get('patientId');
-    const entryId = searchParams.get('id');
+    const patientId = searchParams.get("patientId");
+    const entryId = searchParams.get("id");
 
     // If entry ID is provided, fetch a single entry
     if (entryId) {
       const entry = await Entry.findById(entryId);
-      
+
       if (!entry) {
         return NextResponse.json(
-          { message: 'Entry not found' },
+          { message: "Entry not found" },
           { status: 404 }
         );
       }
-      
-      return NextResponse.json(
-        { entry },
-        { status: 200 }
-      );
+
+      return NextResponse.json({ entry }, { status: 200 });
     }
 
     // If only patient ID is provided, fetch all entries for that patient
     if (patientId) {
-      const entries = await Entry.find({ 
-        patientId: patientId 
+      const entries = await Entry.find({
+        patientId: patientId,
       }).sort({ createdAt: -1 }); // Sort by most recent first
 
-      return NextResponse.json(
-        { entries },
-        { status: 200 }
-      );
+      return NextResponse.json({ entries }, { status: 200 });
     }
 
     return NextResponse.json(
-      { message: 'Patient ID or Entry ID is required' },
+      { message: "Patient ID or Entry ID is required" },
       { status: 400 }
     );
   } catch (error) {
-    log('Error fetching entries: ' + error, 'error');
+    log("Error fetching entries: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to fetch entries' },
+      { message: "Failed to fetch entries" },
       { status: 500 }
     );
   }
@@ -72,30 +66,31 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const username = request.cookies.get("auth-session")?.value;
 
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 
     // Parse the request body
-    const { 
-      patientId, 
-      temperature, 
-      bloodPressure, 
-      pulseRate, 
-      respiratoryRate, 
-      oxygenSaturation, 
-      painLevel 
+    const {
+      patientId,
+      temperature,
+      bloodPressure,
+      pulseRate,
+      respiratoryRate,
+      oxygenSaturation,
+      painLevel,
+      transcript,
     } = await request.json();
 
     // Validate required fields
     if (!patientId) {
       return NextResponse.json(
-        { message: 'Patient ID is required' },
+        { message: "Patient ID is required" },
         { status: 400 }
       );
     }
@@ -107,7 +102,7 @@ export async function POST(request: NextRequest) {
     const patient = await Patient.findById(patientId);
     if (!patient) {
       return NextResponse.json(
-        { message: 'Patient not found' },
+        { message: "Patient not found" },
         { status: 404 }
       );
     }
@@ -120,7 +115,8 @@ export async function POST(request: NextRequest) {
       pulseRate,
       respiratoryRate,
       oxygenSaturation,
-      painLevel
+      painLevel,
+      transcript,
     });
 
     // Save the entry
@@ -134,16 +130,16 @@ export async function POST(request: NextRequest) {
     await patient.save();
 
     return NextResponse.json(
-      { 
-        message: 'Entry added successfully',
-        entry
+      {
+        message: "Entry added successfully",
+        entry,
       },
       { status: 201 }
     );
   } catch (error) {
-    log('Error adding entry: ' + error, 'error');
+    log("Error adding entry: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to add entry' },
+      { message: "Failed to add entry" },
       { status: 500 }
     );
   }
@@ -153,31 +149,31 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const username = request.cookies.get("auth-session")?.value;
 
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 
     // Parse the request body
     const data = await request.json();
-    const { 
+    const {
       id,
-      temperature, 
-      bloodPressure, 
-      pulseRate, 
-      respiratoryRate, 
-      oxygenSaturation, 
+      temperature,
+      bloodPressure,
+      pulseRate,
+      respiratoryRate,
+      oxygenSaturation,
       painLevel,
-      reviewed
+      reviewed,
     } = data;
 
     if (!id) {
       return NextResponse.json(
-        { message: 'Entry ID is required' },
+        { message: "Entry ID is required" },
         { status: 400 }
       );
     }
@@ -187,12 +183,9 @@ export async function PUT(request: NextRequest) {
 
     // Find the entry
     const entry = await Entry.findById(id as string);
-    
+
     if (!entry) {
-      return NextResponse.json(
-        { message: 'Entry not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "Entry not found" }, { status: 404 });
     }
 
     // Update only fields that are provided
@@ -200,7 +193,8 @@ export async function PUT(request: NextRequest) {
     if (bloodPressure !== undefined) entry.bloodPressure = bloodPressure;
     if (pulseRate !== undefined) entry.pulseRate = pulseRate;
     if (respiratoryRate !== undefined) entry.respiratoryRate = respiratoryRate;
-    if (oxygenSaturation !== undefined) entry.oxygenSaturation = oxygenSaturation;
+    if (oxygenSaturation !== undefined)
+      entry.oxygenSaturation = oxygenSaturation;
     if (painLevel !== undefined) entry.painLevel = painLevel;
     if (reviewed !== undefined) entry.reviewed = reviewed;
 
@@ -208,17 +202,17 @@ export async function PUT(request: NextRequest) {
     await entry.save();
 
     return NextResponse.json(
-      { 
-        message: 'Entry updated successfully',
-        entry
+      {
+        message: "Entry updated successfully",
+        entry,
       },
       { status: 200 }
     );
   } catch (error) {
-    log('Error updating entry: ' + error, 'error');
+    log("Error updating entry: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to update entry' },
+      { message: "Failed to update entry" },
       { status: 500 }
     );
   }
-} 
+}
