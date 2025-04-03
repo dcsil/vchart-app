@@ -85,3 +85,7 @@ You can log in using the following credentials:
 
 - **Username**: `test`
 - **Password**: `password`
+
+## Test Coverage
+
+The test coverage report is available [here](vchart-app/coverage/lcov-report/index.html).
