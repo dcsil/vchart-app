@@ -78,3 +78,10 @@ In the project directory, you can run:
 
 The VChart application is live! You can view the deployed version at:
 [https://vchart-app-beta.vercel.app](https://vchart-app-beta.vercel.app/)
+
+## Credentials
+
+You can log in using the following credentials:
+
+- **Username**: `test`
+- **Password**: `password`
