@@ -175,7 +175,6 @@ describe("New Entry Page", () => {
   });
 
   it("should update form fields based on transcription", async () => {
-    const mockTranscript = "Temperature 98.6 Blood Pressure 120/80";
     const mockCohereResponse = JSON.stringify({
       temperature: "98.6",
       bloodPressure: "120/80",

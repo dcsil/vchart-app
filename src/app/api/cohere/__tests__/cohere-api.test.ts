@@ -22,7 +22,10 @@ global.fetch = jest.fn(() =>
 
 // Mock NextRequest
 class MockNextRequest {
-  constructor(public url: string, public init: any) {}
+  constructor(
+    public url: string,
+    public init: { body: string; method: string }
+  ) {}
   json() {
     return Promise.resolve(JSON.parse(this.init.body));
   }
