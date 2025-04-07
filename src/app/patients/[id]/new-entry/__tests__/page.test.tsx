@@ -11,18 +11,9 @@ jest.mock("@/app/utils/log", () => ({
   log: jest.fn(),
 }));
 
-jest.mock("@/app/hooks/useTranscription", () => ({
-  useTranscription: jest.fn(() => ({
-    isListening: false,
-    startListening: jest.fn(),
-    stopListening: jest.fn(),
-  })),
-}));
-
 global.fetch = jest.fn();
 
 import { useRouter, useParams } from "next/navigation";
-import { useTranscription } from "@/app/hooks/useTranscription";
 
 describe("New Entry Page", () => {
   const mockPatient = {
