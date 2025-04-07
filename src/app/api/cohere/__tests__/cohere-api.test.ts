@@ -1,5 +1,5 @@
 import { POST } from "../route";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 // Mock environment variable
 process.env.COHERE_API_KEY = "test-api-key";
