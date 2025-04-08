@@ -13,8 +13,6 @@ export default function Navbar() {
   const [session, setSession] = useState<Session | null>(null);
   const router = useRouter();
 
-  console.log("Navbar component rendered");
-
   useEffect(() => {
     // Check if user is logged in by looking for the cookie
     const cookies = document.cookie.split("; ");
@@ -30,7 +28,6 @@ export default function Navbar() {
           decodeURIComponent(cookieValue)
         );
         setSession(sessionData);
-        console.log("Session data set:", sessionData);
       } catch (error) {
         log("Failed to parse auth-session cookie: " + error, "error");
       }
