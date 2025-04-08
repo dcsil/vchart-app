@@ -1,89 +1,112 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Navbar from '../Navbar';
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import Navbar from "@/app/components/Navbar";
+import { useRouter } from "next/navigation";
 
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@/app/utils/log', () => ({
-  log: jest.fn(),
-}));
+const mockPush = jest.fn();
+const mockRefresh = jest.fn();
 
-import { useRouter } from 'next/navigation';
-import { log } from '@/app/utils/log';
+(useRouter as jest.Mock).mockReturnValue({
+  push: mockPush,
+  refresh: mockRefresh,
+});
 
-describe('Navbar Component', () => {
-  const mockPush = jest.fn();
-  const mockRefresh = jest.fn();
+beforeEach(() => {
+  Object.defineProperty(document, "cookie", {
+    writable: true,
+    value: "",
+  });
+  jest.clearAllMocks();
+});
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    
-    (useRouter as jest.Mock).mockReturnValue({
-      push: mockPush,
-      refresh: mockRefresh,
-    });
-    
-    document.cookie = '';
+describe("Navbar component", () => {
+  it("renders app name correctly", () => {
+    render(<Navbar />);
+
+    expect(screen.getByText("VChart App")).toBeInTheDocument();
   });
 
-  it('should render the app name', () => {
+  it("does not show welcome message or logout button if not logged in", () => {
     render(<Navbar />);
-    expect(screen.getByText('VChart App')).toBeInTheDocument();
+
+    expect(screen.queryByText(/Welcome,/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Logout/i })
+    ).not.toBeInTheDocument();
   });
 
-  it('should not show username and logout button when not logged in', () => {
-    render(<Navbar />);
-    expect(screen.queryByText(/Welcome/)).not.toBeInTheDocument();
-    expect(screen.queryByText('Logout')).not.toBeInTheDocument();
-  });
+  it("shows username and role from cookie if logged in", async () => {
+    const sessionData = { username: "testuser", role: "nurse" };
+    document.cookie = `auth-session=${encodeURIComponent(
+      JSON.stringify(sessionData)
+    )}`;
 
-  it('should show username and logout button when logged in', () => {
-    document.cookie = 'auth-session=testuser; path=/';
-    
     render(<Navbar />);
-    expect(screen.getByText(/Welcome, testuser/)).toBeInTheDocument();
-    expect(screen.getByText('Logout')).toBeInTheDocument();
-  });
 
-  it('should call logout API and redirect when logout button is clicked', async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: true,
-    } as Response);
-    
-    document.cookie = 'auth-session=testuser; path=/';
-    
-    render(<Navbar />);
-    
-    fireEvent.click(screen.getByText('Logout'));
-    
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      expect(screen.getByText("Welcome, testuser (nurse)")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Logout/i })
+      ).toBeInTheDocument();
     });
-    
-    expect(mockPush).toHaveBeenCalledWith('/login');
-    expect(mockRefresh).toHaveBeenCalled();
   });
 
-  it('should handle logout API errors', async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
-      ok: false,
-    } as Response);
-    
-    document.cookie = 'auth-session=testuser; path=/';
-    
+  it("logs out user correctly and redirects to login", async () => {
+    const sessionData = { username: "testuser", role: "nurse" };
+    document.cookie = `auth-session=${encodeURIComponent(
+      JSON.stringify(sessionData)
+    )}`;
+
+    global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
     render(<Navbar />);
-    
-    fireEvent.click(screen.getByText('Logout'));
-    
+
     await waitFor(() => {
-      expect(log).toHaveBeenCalledWith(expect.stringContaining('Logout error'), 'error');
+      expect(
+        screen.getByRole("button", { name: /Logout/i })
+      ).toBeInTheDocument();
     });
-    
-    expect(mockPush).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /Logout/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/auth/logout",
+        expect.objectContaining({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+      );
+      expect(mockPush).toHaveBeenCalledWith("/login");
+      expect(mockRefresh).toHaveBeenCalled();
+    });
+  });
+
+  it("handles logout errors gracefully", async () => {
+    const sessionData = { username: "testuser", role: "nurse" };
+    document.cookie = `auth-session=${encodeURIComponent(
+      JSON.stringify(sessionData)
+    )}`;
+
+    global.fetch = jest.fn().mockResolvedValue({ ok: false });
+
+    render(<Navbar />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Logout/i })
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Logout/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
+      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockRefresh).not.toHaveBeenCalled();
+    });
   });
 });

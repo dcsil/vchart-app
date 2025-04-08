@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
-import Patient, { IPatient } from "@/lib/models/Patient";
+import Patient from "@/lib/models/Patient";
 import User from "@/lib/models/User";
-import mongoose from "mongoose";
 import { log } from "@/app/utils/log";
 
 // GET - Fetch patients for the current user
