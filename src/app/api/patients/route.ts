@@ -1,19 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Patient, { IPatient } from '@/lib/models/Patient';
-import User from '@/lib/models/User';
-import mongoose from 'mongoose';
+import { NextRequest, NextResponse } from "next/server";
+import connectToDatabase from "@/lib/mongodb";
+import Patient, { IPatient } from "@/lib/models/Patient";
+import User from "@/lib/models/User";
+import mongoose from "mongoose";
 import { log } from "@/app/utils/log";
 
 // GET - Fetch patients for the current user
 export async function GET(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const authSession = request.cookies.get("auth-session")?.value;
+    const { username, _ } = authSession ? JSON.parse(authSession) : {};
 
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -25,56 +26,40 @@ export async function GET(request: NextRequest) {
     const user = await User.findOne({ username });
 
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Check if a specific patient ID is requested
     const { searchParams } = new URL(request.url);
-    const patientId = searchParams.get('id');
+    const patientId = searchParams.get("id");
 
     if (patientId) {
       // Fetch a single patient by ID
-      if (user.patients && user.patients.some(id => id.toString() === patientId)) {
-        const patient = await Patient.findById(patientId);
-        
-        if (!patient) {
-          return NextResponse.json(
-            { message: 'Patient not found' },
-            { status: 404 }
-          );
-        }
-        
+      const patient = await Patient.findOne({
+        _id: patientId,
+        nurseId: user._id,
+      });
+
+      if (!patient) {
         return NextResponse.json(
-          { patient },
-          { status: 200 }
-        );
-      } else {
-        return NextResponse.json(
-          { message: 'Patient not found or not associated with this user' },
+          { message: "Patient not found or not associated with this user" },
           { status: 404 }
         );
       }
+
+      return NextResponse.json({ patient }, { status: 200 });
     }
 
-    // Fetch all patients based on user's patient array
-    let patients: IPatient[] = [];
-    if (user.patients && user.patients.length > 0) {
-      patients = await Patient.find({
-        _id: { $in: user.patients }
-      }).sort({ createdAt: -1 }); // Sort by most recent first
-    }
+    // Fetch all patients associated with the nurse
+    const patients = await Patient.find({ nurseId: user._id }).sort({
+      createdAt: -1,
+    });
 
-    return NextResponse.json(
-      { patients },
-      { status: 200 }
-    );
+    return NextResponse.json({ patients }, { status: 200 });
   } catch (error) {
-    log('Error fetching patients: ' + error, 'error');
+    log("Error fetching patients: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to fetch patients' },
+      { message: "Failed to fetch patients" },
       { status: 500 }
     );
   }
@@ -84,11 +69,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const authSession = request.cookies.get("auth-session")?.value;
+    const { username, role } = authSession ? JSON.parse(authSession) : {};
 
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -99,7 +85,7 @@ export async function POST(request: NextRequest) {
     // Validate input
     if (!firstName || !lastName || !roomNumber || !diagnosis) {
       return NextResponse.json(
-        { message: 'All fields are required' },
+        { message: "All fields are required" },
         { status: 400 }
       );
     }
@@ -111,10 +97,7 @@ export async function POST(request: NextRequest) {
     const user = await User.findOne({ username });
 
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Create a new patient
@@ -122,38 +105,30 @@ export async function POST(request: NextRequest) {
       firstName,
       lastName,
       roomNumber,
-      diagnosis
+      diagnosis,
+      nurseId: user._id,
     });
 
     // Save the patient
     await patient.save();
 
-    // Initialize patients array if it doesn't exist
-    if (!user.patients) {
-      user.patients = [];
-    }
-
-    // Add the patient ID to the user's patients array
-    user.patients.push(patient._id as unknown as mongoose.Types.ObjectId);
-    await user.save();
-
     return NextResponse.json(
-      { 
-        message: 'Patient added successfully',
+      {
+        message: "Patient added successfully",
         patient: {
           _id: patient._id,
           firstName: patient.firstName,
           lastName: patient.lastName,
           roomNumber: patient.roomNumber,
-          diagnosis: patient.diagnosis
-        }
+          diagnosis: patient.diagnosis,
+        },
       },
       { status: 201 }
     );
   } catch (error) {
-    log('Error adding patient: ' + error, 'error');
+    log("Error adding patient: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to add patient' },
+      { message: "Failed to add patient" },
       { status: 500 }
     );
   }
@@ -163,22 +138,23 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const authSession = request.cookies.get("auth-session")?.value;
+    const { username, _ } = authSession ? JSON.parse(authSession) : {};
 
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 
     // Get patient ID from the URL
     const { searchParams } = new URL(request.url);
-    const patientId = searchParams.get('id');
+    const patientId = searchParams.get("id");
 
     if (!patientId) {
       return NextResponse.json(
-        { message: 'Patient ID is required' },
+        { message: "Patient ID is required" },
         { status: 400 }
       );
     }
@@ -190,36 +166,34 @@ export async function DELETE(request: NextRequest) {
     const user = await User.findOne({ username });
 
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Check if the patient exists and belongs to this user
-    if (!user.patients || !user.patients.some(id => id.toString() === patientId)) {
+    const patient = await Patient.findOne({
+      _id: patientId,
+      nurseId: user._id,
+    });
+
+    if (!patient) {
       return NextResponse.json(
-        { message: 'Patient not found or not associated with this user' },
+        { message: "Patient not found or not associated with this user" },
         { status: 404 }
       );
     }
-
-    // Remove patient ID from user's patients array
-    user.patients = user.patients.filter(id => id.toString() !== patientId);
-    await user.save();
 
     // Delete the patient document
     await Patient.findByIdAndDelete(patientId);
 
     return NextResponse.json(
-      { message: 'Patient deleted successfully' },
+      { message: "Patient deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    log('Error deleting patient: ' + error, 'error');
+    log("Error deleting patient: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to delete patient' },
+      { message: "Failed to delete patient" },
       { status: 500 }
     );
   }
-} 
+}

@@ -6,7 +6,6 @@ import { log } from "@/app/utils/log";
 import { useTranscription } from "@/app/hooks/useTranscription";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 
-// Helper function to call the Cohere endpoint
 async function callCohereLLM(transcript: string) {
   try {
     const response = await fetch("/api/cohere", {
@@ -32,7 +31,6 @@ export default function NewEntry() {
   const params = useParams();
   const patientId = params.id as string;
 
-  // Form state
   const [temperature, setTemperature] = useState("");
   const [bloodPressure, setBloodPressure] = useState("");
   const [pulseRate, setPulseRate] = useState("");
@@ -58,6 +56,7 @@ export default function NewEntry() {
 
     const timer = setTimeout(async () => {
       const cohereResponse = await callCohereLLM(fullText);
+
       if (cohereResponse) {
         try {
           const parsed = JSON.parse(cohereResponse);
