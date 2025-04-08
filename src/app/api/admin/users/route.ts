@@ -12,7 +12,7 @@ function getSession(request: NextRequest) {
   try {
     return JSON.parse(authSession.value);
   } catch (err) {
-    log("Failed to parse session cookie");
+    log("Failed to parse session cookie" + err, "error");
     return null;
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import Patient from "@/lib/models/Patient";
 import User from "@/lib/models/User";
-import { GET, POST, DELETE } from "../route";
+import { POST } from "../route";
 
 jest.mock("next/server", () => ({
   NextResponse: {

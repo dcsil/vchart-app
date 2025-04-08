@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   let sessionData;
   try {
     sessionData = JSON.parse(authSession.value);
-  } catch (err) {
+  } catch {
     // In case of parsing error, clear cookie and redirect to login.
     return NextResponse.redirect(new URL("/login", request.url));
   }

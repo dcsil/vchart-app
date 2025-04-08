@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
     const authSession = request.cookies.get("auth-session")?.value;
-    const { username, _ } = authSession ? JSON.parse(authSession) : {};
+    const { username } = authSession ? JSON.parse(authSession) : {};
 
     if (!username) {
       return NextResponse.json(
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
     const authSession = request.cookies.get("auth-session")?.value;
-    const { username, role } = authSession ? JSON.parse(authSession) : {};
+    const { username } = authSession ? JSON.parse(authSession) : {};
 
     if (!username) {
       return NextResponse.json(
@@ -138,7 +138,7 @@ export async function DELETE(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
     const authSession = request.cookies.get("auth-session")?.value;
-    const { username, _ } = authSession ? JSON.parse(authSession) : {};
+    const { username } = authSession ? JSON.parse(authSession) : {};
 
     if (!username) {
       return NextResponse.json(
