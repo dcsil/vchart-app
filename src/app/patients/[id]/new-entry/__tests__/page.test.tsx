@@ -36,9 +36,9 @@ describe("NewEntry Page", () => {
     jest.clearAllMocks();
   });
 
-  test("renders the New EMR Entry page", () => {
+  test("renders the New Entry page", () => {
     render(<NewEntry />);
-    expect(screen.getByText("New EMR Entry")).toBeInTheDocument();
+    expect(screen.getByText("New Entry")).toBeInTheDocument();
     expect(screen.getByLabelText("Temperature")).toBeInTheDocument();
     // You can add additional expectations for other fields here.
   });
