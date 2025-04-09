@@ -83,13 +83,6 @@ export async function POST(request: NextRequest) {
       objective,
       assessment,
       plan,
-      medications,
-      interventions,
-      diagnostics,
-      riskAssessments,
-      educationProvided,
-      psychosocial,
-      communication,
       transcript,
     } = await request.json();
 
@@ -121,13 +114,6 @@ export async function POST(request: NextRequest) {
       objective,
       assessment,
       plan,
-      medications,
-      interventions,
-      diagnostics,
-      riskAssessments,
-      educationProvided,
-      psychosocial,
-      communication,
       transcript,
     });
 
@@ -190,13 +176,6 @@ export async function PUT(request: NextRequest) {
       objective,
       assessment,
       plan,
-      medications,
-      interventions,
-      diagnostics,
-      riskAssessments,
-      educationProvided,
-      psychosocial,
-      communication,
       reviewed,
       transcript,
     } = data;
@@ -227,16 +206,6 @@ export async function PUT(request: NextRequest) {
       entry.objective = { ...entry.objective, ...objective };
     if (assessment !== undefined) entry.assessment = assessment;
     if (plan !== undefined) entry.plan = plan;
-    if (medications !== undefined) entry.medications = medications;
-    if (interventions !== undefined) entry.interventions = interventions;
-    if (diagnostics !== undefined)
-      entry.diagnostics = { ...entry.diagnostics, ...diagnostics };
-    if (riskAssessments !== undefined)
-      entry.riskAssessments = { ...entry.riskAssessments, ...riskAssessments };
-    if (educationProvided !== undefined)
-      entry.educationProvided = educationProvided;
-    if (psychosocial !== undefined) entry.psychosocial = psychosocial;
-    if (communication !== undefined) entry.communication = communication;
     if (reviewed !== undefined) entry.reviewed = reviewed;
     if (transcript !== undefined) entry.transcript = transcript;
 

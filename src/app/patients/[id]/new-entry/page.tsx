@@ -270,11 +270,15 @@ export default function NewEntry() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Temperature with Unit */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="temperature"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Temperature
                   </label>
                   <div className="flex gap-2">
                     <input
+                      id="temperature"
                       type="text"
                       value={temperature}
                       onChange={(e) => setTemperature(e.target.value)}
@@ -285,6 +289,7 @@ export default function NewEntry() {
                       value={temperatureUnit}
                       onChange={(e) => setTemperatureUnit(e.target.value)}
                       className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                      aria-label="Temperature unit"
                     >
                       <option value="C">°C</option>
                       <option value="F">°F</option>
@@ -293,18 +298,28 @@ export default function NewEntry() {
                 </div>
                 {/* Blood Pressure */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    id="bp-label"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Blood Pressure
                   </label>
-                  <div className="flex gap-2">
+                  <div
+                    className="flex gap-2"
+                    role="group"
+                    aria-labelledby="bp-label"
+                  >
                     <input
+                      aria-label="Systolic Blood Pressure"
                       type="text"
                       value={bloodPressureSystolic}
                       onChange={(e) => setBloodPressureSystolic(e.target.value)}
                       placeholder="Systolic"
                       className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
                     />
+                    <span className="self-center text-gray-500">/</span>
                     <input
+                      aria-label="Diastolic Blood Pressure"
                       type="text"
                       value={bloodPressureDiastolic}
                       onChange={(e) =>
@@ -317,10 +332,14 @@ export default function NewEntry() {
                 </div>
                 {/* Heart Rate */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="heartRate"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Heart Rate (BPM)
                   </label>
                   <input
+                    id="heartRate"
                     type="text"
                     value={heartRate}
                     onChange={(e) => setHeartRate(e.target.value)}
@@ -330,10 +349,14 @@ export default function NewEntry() {
                 </div>
                 {/* Respiratory Rate */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="respiratoryRate"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Respiratory Rate
                   </label>
                   <input
+                    id="respiratoryRate"
                     type="text"
                     value={respiratoryRate}
                     onChange={(e) => setRespiratoryRate(e.target.value)}
@@ -343,10 +366,14 @@ export default function NewEntry() {
                 </div>
                 {/* Oxygen Saturation */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="oxygenSaturation"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Oxygen Saturation (%)
                   </label>
                   <input
+                    id="oxygenSaturation"
                     type="text"
                     value={oxygenSaturation}
                     onChange={(e) => setOxygenSaturation(e.target.value)}
@@ -363,10 +390,14 @@ export default function NewEntry() {
               <div className="grid grid-cols-1 gap-4">
                 {/* Chief Complaint */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="chiefComplaint"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Chief Complaint
                   </label>
                   <input
+                    id="chiefComplaint"
                     type="text"
                     value={chiefComplaint}
                     onChange={(e) => setChiefComplaint(e.target.value)}
@@ -376,10 +407,14 @@ export default function NewEntry() {
                 </div>
                 {/* Symptom History */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="symptomHistory"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Symptom History
                   </label>
                   <textarea
+                    id="symptomHistory"
                     value={symptomHistory}
                     onChange={(e) => setSymptomHistory(e.target.value)}
                     placeholder="e.g., Started suddenly 2 hours ago..."
@@ -389,10 +424,14 @@ export default function NewEntry() {
                 </div>
                 {/* Pain Level */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="painLevel"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Pain Level (0-10)
                   </label>
                   <input
+                    id="painLevel"
                     type="text"
                     value={painLevel}
                     onChange={(e) => setPainLevel(e.target.value)}
@@ -409,10 +448,14 @@ export default function NewEntry() {
               <div className="grid grid-cols-1 gap-4">
                 {/* General Appearance */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="generalAppearance"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     General Appearance
                   </label>
                   <textarea
+                    id="generalAppearance"
                     value={generalAppearance}
                     onChange={(e) => setGeneralAppearance(e.target.value)}
                     placeholder="e.g., Patient appears alert but in mild distress..."
@@ -422,10 +465,14 @@ export default function NewEntry() {
                 </div>
                 {/* Cardiovascular */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="cardiovascular"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Cardiovascular Exam
                   </label>
                   <textarea
+                    id="cardiovascular"
                     value={cardiovascular}
                     onChange={(e) => setCardiovascular(e.target.value)}
                     placeholder="e.g., Regular rhythm, no murmurs..."
@@ -435,10 +482,14 @@ export default function NewEntry() {
                 </div>
                 {/* Respiratory */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="objRespiratory"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Respiratory Exam
                   </label>
                   <textarea
+                    id="objRespiratory"
                     value={objRespiratory}
                     onChange={(e) => setObjRespiratory(e.target.value)}
                     placeholder="e.g., Clear to auscultation..."
@@ -448,10 +499,14 @@ export default function NewEntry() {
                 </div>
                 {/* Neurological */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="neurological"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Neurological Exam
                   </label>
                   <textarea
+                    id="neurological"
                     value={neurological}
                     onChange={(e) => setNeurological(e.target.value)}
                     placeholder="e.g., Patient is oriented x3..."
@@ -461,10 +516,14 @@ export default function NewEntry() {
                 </div>
                 {/* Skin Exam */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="skin"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Skin Exam
                   </label>
                   <textarea
+                    id="skin"
                     value={skin}
                     onChange={(e) => setSkin(e.target.value)}
                     placeholder="e.g., No rashes or lesions observed..."
@@ -474,10 +533,14 @@ export default function NewEntry() {
                 </div>
                 {/* Additional Exam */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="additionalExam"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Additional Exam
                   </label>
                   <textarea
+                    id="additionalExam"
                     value={additionalExam}
                     onChange={(e) => setAdditionalExam(e.target.value)}
                     placeholder="Any extra observations..."
@@ -494,10 +557,14 @@ export default function NewEntry() {
               <div className="grid grid-cols-1 gap-4">
                 {/* Assessment */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="assessment"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Assessment
                   </label>
                   <textarea
+                    id="assessment"
                     value={assessment}
                     onChange={(e) => setAssessment(e.target.value)}
                     placeholder="Nurse's analysis of the situation..."
@@ -507,10 +574,14 @@ export default function NewEntry() {
                 </div>
                 {/* Plan */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="plan"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Plan
                   </label>
                   <textarea
+                    id="plan"
                     value={plan}
                     onChange={(e) => setPlan(e.target.value)}
                     placeholder="Next steps for patient care..."

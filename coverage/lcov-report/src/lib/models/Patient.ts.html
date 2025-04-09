@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.49% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>49/49</span>
+                <span class='fraction'>55/57</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.49% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>49/49</span>
+                <span class='fraction'>55/57</span>
             </div>
         
             
@@ -111,7 +111,16 @@
 <a name='L46'></a><a href='#L46'>46</a>
 <a name='L47'></a><a href='#L47'>47</a>
 <a name='L48'></a><a href='#L48'>48</a>
-<a name='L49'></a><a href='#L49'>49</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -159,62 +168,80 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import mongoose from 'mongoose';
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import mongoose from "mongoose";
 &nbsp;
-// Define Patient interface
 export interface IPatient extends mongoose.Document {
   firstName: string;
   lastName: string;
   roomNumber: string;
   diagnosis: string;
+  nurseId: mongoose.Types.ObjectId; // New field to link a patient to a nurse
   entries: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
 &nbsp;
-// Define Patient schema
-const PatientSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: [true, 'First name is required'],
-  },
-  lastName: {
-    type: String,
-    required: [true, 'Last name is required'],
-  },
-  roomNumber: {
-    type: String,
-    required: [true, 'Room number is required'],
-  },
-  diagnosis: {
-    type: String,
-    required: [true, 'Diagnosis is required'],
-  },
-  entries: {
-    type: [{
+const PatientSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: [true, "First name is required"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Last name is required"],
+    },
+    roomNumber: {
+      type: String,
+      required: [true, "Room number is required"],
+    },
+    diagnosis: {
+      type: String,
+      required: [true, "Diagnosis is required"],
+    },
+    nurseId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Entry'
-    }],
-    default: [] // Initialize with an empty array
-  }
-}, { timestamps: true });
+      ref: "User",
+      required: [true, "Nurse ID is required"], // ensure each patient is linked to a nurse
+      index: true, // creates an index to speed up queries by nurse
+    },
+    entries: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Entry",
+        },
+      ],
+      default: [], // Initialize with an empty array
+    },
+  },
+  { timestamps: true }
+);
 &nbsp;
-// Clear the model cache to ensure the updated schema is used
-if (mongoose.models.Patient) {
-  delete mongoose.models.Patient;
-}
+if (mongoose.models.Patient) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+<span class="cstat-no" title="statement not covered" >  delete mongoose.models.Patient;</span>
+<span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;
-// Create the model with the updated schema
-const Patient = mongoose.model&lt;IPatient&gt;('Patient', PatientSchema, 'patients');
+const Patient = mongoose.model&lt;IPatient&gt;("Patient", PatientSchema, "patients");
 &nbsp;
-export default Patient; </pre></td></tr></table></pre>
+export default Patient;
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-03T03:01:50.221Z
+                at 2025-04-09T22:39:36.358Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

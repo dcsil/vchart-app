@@ -41,54 +41,6 @@ export interface IEntry extends mongoose.Document {
   assessment?: string; // Evaluation/analysis of the patient's condition
   plan?: string; // Next steps for care or follow-up actions
 
-  // Records for medications administered during the encounter
-  medications?: Array<{
-    medicationName?: string; // Name of the medication
-    dose?: string; // Dosage details (e.g., "500 mg", "1 tablet")
-    route?: string; // Route of administration (e.g., oral, IV)
-    timeAdministered?: Date; // Time when the medication was given
-    response?: string; // Observations on response or adverse effects
-  }>;
-
-  // Records of any interventions performed
-  interventions?: Array<{
-    description?: string; // Details of the procedure/intervention
-    performedAt?: Date; // Time when the intervention was carried out
-    outcome?: string; // Immediate results or outcomes
-  }>;
-
-  // Diagnostic tests including labs and imaging studies
-  diagnostics?: {
-    labs?: Array<{
-      testName?: string; // Name of the lab test (e.g., CBC, CMP)
-      result?: string; // Result values
-      unit?: string; // Unit for the result if applicable
-      referenceRange?: string; // Expected normal range
-      collectedAt?: Date; // Time of sample collection
-    }>;
-    imaging?: Array<{
-      examName?: string; // Type of imaging exam (e.g., X-ray, CT)
-      findings?: string; // Summary of the findings
-      impression?: string; // Interpretation or impression notes
-      performedAt?: Date; // Time when the exam was performed
-    }>;
-  };
-
-  // Risk assessments that flag potential hazards
-  riskAssessments?: {
-    fallRisk?: string; // Fall risk (e.g., "low", "moderate", "high")
-    pressureUlcerRisk?: string; // Pressure ulcer risk (e.g., scale score)
-  };
-
-  // Documentation of any patient or family education provided
-  educationProvided?: string;
-
-  // Psychosocial and behavioral observations
-  psychosocial?: string;
-
-  // Communication or handoff notes with care team members
-  communication?: string;
-
   // Indicates whether the record has been reviewed by another clinician
   reviewed?: boolean;
 
@@ -136,48 +88,6 @@ const EntrySchema = new mongoose.Schema(
     },
     assessment: { type: String, default: "" },
     plan: { type: String, default: "" },
-    medications: [
-      {
-        medicationName: { type: String, default: "" },
-        dose: { type: String, default: "" },
-        route: { type: String, default: "" },
-        timeAdministered: { type: Date },
-        response: { type: String, default: "" },
-      },
-    ],
-    interventions: [
-      {
-        description: { type: String, default: "" },
-        performedAt: { type: Date },
-        outcome: { type: String, default: "" },
-      },
-    ],
-    diagnostics: {
-      labs: [
-        {
-          testName: { type: String, default: "" },
-          result: { type: String, default: "" },
-          unit: { type: String, default: "" },
-          referenceRange: { type: String, default: "" },
-          collectedAt: { type: Date },
-        },
-      ],
-      imaging: [
-        {
-          examName: { type: String, default: "" },
-          findings: { type: String, default: "" },
-          impression: { type: String, default: "" },
-          performedAt: { type: Date },
-        },
-      ],
-    },
-    riskAssessments: {
-      fallRisk: { type: String, default: "" },
-      pressureUlcerRisk: { type: String, default: "" },
-    },
-    educationProvided: { type: String, default: "" },
-    psychosocial: { type: String, default: "" },
-    communication: { type: String, default: "" },
     reviewed: { type: Boolean, default: false },
     transcript: {
       type: String,
@@ -194,6 +104,6 @@ if (mongoose.models.Entry) {
 }
 
 // Create the model using the defined schema
-const Entry = mongoose.model<IEntry>("Entry", EntrySchema, "emr_entries");
+const Entry = mongoose.model<IEntry>("Entry", EntrySchema, "entries");
 
 export default Entry;
