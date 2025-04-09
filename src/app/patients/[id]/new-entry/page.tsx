@@ -232,7 +232,7 @@ export default function NewEntry() {
       {/* Back Button */}
       <button
         onClick={handleBack}
-        className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -252,10 +252,8 @@ export default function NewEntry() {
       {/* Main Container */}
       <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6 flex-1">
         {/* Form Container */}
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            New EMR Entry
-          </h1>
+        <div className="flex-1 flex flex-col">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">New Entry</h1>
 
           {error && (
             <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
@@ -630,7 +628,7 @@ export default function NewEntry() {
           <h2 className="text-lg font-bold text-gray-900 mb-2 md:mb-4">
             Live Transcription
           </h2>
-          <div className="overflow-auto p-2 border border-gray-300 rounded-md bg-white shadow-sm h-[17vh] md:h-96">
+          <div className="overflow-auto p-2 border border-gray-300 rounded-md flex-1 bg-white shadow-sm min-h-[17vh]">
             {transcript || interimResult ? (
               <p className="text-gray-700 whitespace-pre-wrap">
                 {transcript}
