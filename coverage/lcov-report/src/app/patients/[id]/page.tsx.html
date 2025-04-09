@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.53% </span>
+                <span class="strong">88.16% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>212/245</span>
+                <span class='fraction'>216/245</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">56.66% </span>
+                <span class="strong">57.69% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>17/30</span>
+                <span class='fraction'>15/26</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.53% </span>
+                <span class="strong">88.16% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>212/245</span>
+                <span class='fraction'>216/245</span>
             </div>
         
             
@@ -354,7 +354,7 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -374,11 +374,11 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -395,19 +395,19 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -617,9 +617,9 @@ export default function PatientDetails() {
 <span class="branch-0 cbranch-no" title="branch not covered" >        } else {</span>
 <span class="cstat-no" title="statement not covered" >          throw new Error('Patient not found');</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
-      } <span class="branch-0 cbranch-no" title="branch not covered" >catch (err) {</span>
-<span class="cstat-no" title="statement not covered" >        log('Error fetching patient details: ' + err, 'error');</span>
-<span class="cstat-no" title="statement not covered" >        setError('Could not load patient details. Please try again later.');</span>
+      } catch (err) {
+        log('Error fetching patient details: ' + err, 'error');
+        setError('Could not load patient details. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -646,9 +646,9 @@ export default function PatientDetails() {
         
         const data = await response.json();
         setEntries(data.entries<span class="branch-0 cbranch-no" title="branch not covered" > || [])</span>;
-      } <span class="branch-0 cbranch-no" title="branch not covered" >catch (err) {</span>
-<span class="cstat-no" title="statement not covered" >        log('Error fetching patient entries: ' + err, 'error');</span>
-<span class="cstat-no" title="statement not covered" >        setEntriesError('Failed to load patient entries');</span>
+      } catch (err) {
+        log('Error fetching patient entries: ' + err, 'error');
+        setEntriesError('Failed to load patient entries');
       } finally {
         setEntriesLoading(false);
       }
@@ -802,7 +802,7 @@ export default function PatientDetails() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-09T01:39:39.274Z
+                at 2025-04-09T19:59:14.977Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
