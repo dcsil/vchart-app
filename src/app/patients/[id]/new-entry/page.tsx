@@ -31,12 +31,31 @@ export default function NewEntry() {
   const params = useParams();
   const patientId = params.id as string;
 
+  // ---------- Vital Signs ----------
   const [temperature, setTemperature] = useState("");
-  const [bloodPressure, setBloodPressure] = useState("");
-  const [pulseRate, setPulseRate] = useState("");
+  const [temperatureUnit, setTemperatureUnit] = useState("C");
+  const [bloodPressureSystolic, setBloodPressureSystolic] = useState("");
+  const [bloodPressureDiastolic, setBloodPressureDiastolic] = useState("");
+  const [heartRate, setHeartRate] = useState("");
   const [respiratoryRate, setRespiratoryRate] = useState("");
   const [oxygenSaturation, setOxygenSaturation] = useState("");
+
+  // ---------- Subjective (Patient-Reported) ----------
+  const [chiefComplaint, setChiefComplaint] = useState("");
+  const [symptomHistory, setSymptomHistory] = useState("");
   const [painLevel, setPainLevel] = useState("");
+
+  // ---------- Objective (Physical Exam) ----------
+  const [generalAppearance, setGeneralAppearance] = useState("");
+  const [cardiovascular, setCardiovascular] = useState("");
+  const [objRespiratory, setObjRespiratory] = useState("");
+  const [neurological, setNeurological] = useState("");
+  const [skin, setSkin] = useState("");
+  const [additionalExam, setAdditionalExam] = useState("");
+
+  // ---------- Assessment & Plan ----------
+  const [assessment, setAssessment] = useState("");
+  const [plan, setPlan] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -54,25 +73,73 @@ export default function NewEntry() {
     const fullText = `${transcript} ${interimResult}`.trim();
     if (!fullText) return;
 
+    // 500ms debounce
+    // 500ms debounce
     const timer = setTimeout(async () => {
       const cohereResponse = await callCohereLLM(fullText);
-
       if (cohereResponse) {
         try {
           const parsed = JSON.parse(cohereResponse);
-          if (parsed.temperature) setTemperature(parsed.temperature);
-          if (parsed.bloodPressure) setBloodPressure(parsed.bloodPressure);
-          if (parsed.pulseRate) setPulseRate(parsed.pulseRate);
-          if (parsed.respiratoryRate)
-            setRespiratoryRate(parsed.respiratoryRate);
-          if (parsed.oxygenSaturation)
-            setOxygenSaturation(parsed.oxygenSaturation);
-          if (parsed.painLevel) setPainLevel(parsed.painLevel);
+
+          // Update Vital Signs section
+          if (parsed.vitalSigns) {
+            const {
+              temperature,
+              bloodPressure,
+              heartRate,
+              respiratoryRate,
+              oxygenSaturation,
+            } = parsed.vitalSigns;
+            if (temperature) {
+              if (temperature.value) setTemperature(String(temperature.value));
+              if (temperature.unit) setTemperatureUnit(temperature.unit);
+            }
+            if (bloodPressure) {
+              if (bloodPressure.systolic)
+                setBloodPressureSystolic(String(bloodPressure.systolic));
+              if (bloodPressure.diastolic)
+                setBloodPressureDiastolic(String(bloodPressure.diastolic));
+            }
+            if (heartRate) setHeartRate(String(heartRate));
+            if (respiratoryRate) setRespiratoryRate(String(respiratoryRate));
+            if (oxygenSaturation) setOxygenSaturation(String(oxygenSaturation));
+          }
+
+          // Update Subjective section
+          if (parsed.subjective) {
+            const { chiefComplaint, symptomHistory, painLevel } =
+              parsed.subjective;
+            if (chiefComplaint) setChiefComplaint(chiefComplaint);
+            if (symptomHistory) setSymptomHistory(symptomHistory);
+            if (painLevel) setPainLevel(String(painLevel));
+          }
+
+          // Update Objective section
+          if (parsed.objective) {
+            const {
+              generalAppearance,
+              cardiovascular,
+              respiratory,
+              neurological,
+              skin,
+              additionalExam,
+            } = parsed.objective;
+            if (generalAppearance) setGeneralAppearance(generalAppearance);
+            if (cardiovascular) setCardiovascular(cardiovascular);
+            if (respiratory) setObjRespiratory(respiratory); // Note: updating our objective respiratory state variable
+            if (neurological) setNeurological(neurological);
+            if (skin) setSkin(skin);
+            if (additionalExam) setAdditionalExam(additionalExam);
+          }
+
+          // Update Assessment & Plan section
+          if (parsed.assessment) setAssessment(parsed.assessment);
+          if (parsed.plan) setPlan(parsed.plan);
         } catch (error) {
           console.error("Error parsing Cohere response:", error);
         }
       }
-    }, 500); // 2-second debounce
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [transcript, interimResult]);
@@ -96,21 +163,46 @@ export default function NewEntry() {
       setIsSubmitting(true);
       setError("");
 
+      // Build payload with nested objects as required by the new model
+      const payload = {
+        patientId,
+        vitalSigns: {
+          temperature: {
+            value: parseFloat(temperature),
+            unit: temperatureUnit,
+          },
+          bloodPressure: {
+            systolic: parseFloat(bloodPressureSystolic),
+            diastolic: parseFloat(bloodPressureDiastolic),
+            unit: "mmHg",
+          },
+          heartRate: parseFloat(heartRate),
+          respiratoryRate: parseFloat(respiratoryRate),
+          oxygenSaturation: parseFloat(oxygenSaturation),
+        },
+        subjective: {
+          chiefComplaint,
+          symptomHistory,
+          painLevel: painLevel ? parseInt(painLevel, 10) : undefined,
+        },
+        objective: {
+          generalAppearance,
+          cardiovascular,
+          respiratory: objRespiratory,
+          neurological,
+          skin,
+          additionalExam,
+        },
+        assessment,
+        plan,
+      };
+
       const response = await fetch("/api/entries", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          patientId,
-          temperature,
-          bloodPressure,
-          pulseRate,
-          respiratoryRate,
-          oxygenSaturation,
-          painLevel,
-          transcript: transcript,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -157,11 +249,13 @@ export default function NewEntry() {
         Back to Entry List
       </button>
 
-      {/* Main Container*/}
+      {/* Main Container */}
       <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6 flex-1">
         {/* Form Container */}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">New Entry</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">
+            New EMR Entry
+          </h1>
 
           {error && (
             <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
@@ -169,123 +263,270 @@ export default function NewEntry() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col">
-            <div className="overflow-auto pr-2 space-y-4 h-[50vh] md:h-96">
-              {/* Temperature */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <label
-                  htmlFor="temperature"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Temperature
-                </label>
-                <input
-                  type="text"
-                  id="temperature"
-                  value={temperature}
-                  onChange={(e) => setTemperature(e.target.value)}
-                  placeholder="e.g., 98.6°F"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
-                />
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
+            {/* Vital Signs Section */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Vital Signs</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Temperature with Unit */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Temperature
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={temperature}
+                      onChange={(e) => setTemperature(e.target.value)}
+                      placeholder="e.g., 37.0"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                    />
+                    <select
+                      value={temperatureUnit}
+                      onChange={(e) => setTemperatureUnit(e.target.value)}
+                      className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                    >
+                      <option value="C">°C</option>
+                      <option value="F">°F</option>
+                    </select>
+                  </div>
+                </div>
+                {/* Blood Pressure */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Blood Pressure
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={bloodPressureSystolic}
+                      onChange={(e) => setBloodPressureSystolic(e.target.value)}
+                      placeholder="Systolic"
+                      className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                    />
+                    <input
+                      type="text"
+                      value={bloodPressureDiastolic}
+                      onChange={(e) =>
+                        setBloodPressureDiastolic(e.target.value)
+                      }
+                      placeholder="Diastolic"
+                      className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                    />
+                  </div>
+                </div>
+                {/* Heart Rate */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Heart Rate (BPM)
+                  </label>
+                  <input
+                    type="text"
+                    value={heartRate}
+                    onChange={(e) => setHeartRate(e.target.value)}
+                    placeholder="e.g., 75"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Respiratory Rate */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Respiratory Rate
+                  </label>
+                  <input
+                    type="text"
+                    value={respiratoryRate}
+                    onChange={(e) => setRespiratoryRate(e.target.value)}
+                    placeholder="e.g., 16"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Oxygen Saturation */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Oxygen Saturation (%)
+                  </label>
+                  <input
+                    type="text"
+                    value={oxygenSaturation}
+                    onChange={(e) => setOxygenSaturation(e.target.value)}
+                    placeholder="e.g., 98"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
               </div>
+            </section>
 
-              {/* Blood Pressure */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <label
-                  htmlFor="bloodPressure"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Blood Pressure
-                </label>
-                <input
-                  type="text"
-                  id="bloodPressure"
-                  value={bloodPressure}
-                  onChange={(e) => setBloodPressure(e.target.value)}
-                  placeholder="e.g., 120/80"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
-                />
+            {/* Subjective Section */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Subjective</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {/* Chief Complaint */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Chief Complaint
+                  </label>
+                  <input
+                    type="text"
+                    value={chiefComplaint}
+                    onChange={(e) => setChiefComplaint(e.target.value)}
+                    placeholder="e.g., Chest pain"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Symptom History */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Symptom History
+                  </label>
+                  <textarea
+                    value={symptomHistory}
+                    onChange={(e) => setSymptomHistory(e.target.value)}
+                    placeholder="e.g., Started suddenly 2 hours ago..."
+                    rows={3}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Pain Level */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Pain Level (0-10)
+                  </label>
+                  <input
+                    type="text"
+                    value={painLevel}
+                    onChange={(e) => setPainLevel(e.target.value)}
+                    placeholder="e.g., 3"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
               </div>
+            </section>
 
-              {/* Pulse Rate */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <label
-                  htmlFor="pulseRate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Pulse Rate
-                </label>
-                <input
-                  type="text"
-                  id="pulseRate"
-                  value={pulseRate}
-                  onChange={(e) => setPulseRate(e.target.value)}
-                  placeholder="e.g., 75 bpm"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
-                />
+            {/* Objective Section */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Objective</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {/* General Appearance */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    General Appearance
+                  </label>
+                  <textarea
+                    value={generalAppearance}
+                    onChange={(e) => setGeneralAppearance(e.target.value)}
+                    placeholder="e.g., Patient appears alert but in mild distress..."
+                    rows={2}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Cardiovascular */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cardiovascular Exam
+                  </label>
+                  <textarea
+                    value={cardiovascular}
+                    onChange={(e) => setCardiovascular(e.target.value)}
+                    placeholder="e.g., Regular rhythm, no murmurs..."
+                    rows={2}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Respiratory */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Respiratory Exam
+                  </label>
+                  <textarea
+                    value={objRespiratory}
+                    onChange={(e) => setObjRespiratory(e.target.value)}
+                    placeholder="e.g., Clear to auscultation..."
+                    rows={2}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Neurological */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Neurological Exam
+                  </label>
+                  <textarea
+                    value={neurological}
+                    onChange={(e) => setNeurological(e.target.value)}
+                    placeholder="e.g., Patient is oriented x3..."
+                    rows={2}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Skin Exam */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Skin Exam
+                  </label>
+                  <textarea
+                    value={skin}
+                    onChange={(e) => setSkin(e.target.value)}
+                    placeholder="e.g., No rashes or lesions observed..."
+                    rows={2}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Additional Exam */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Additional Exam
+                  </label>
+                  <textarea
+                    value={additionalExam}
+                    onChange={(e) => setAdditionalExam(e.target.value)}
+                    placeholder="Any extra observations..."
+                    rows={2}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
               </div>
+            </section>
 
-              {/* Respiratory Rate */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <label
-                  htmlFor="respiratoryRate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Respiratory Rate
-                </label>
-                <input
-                  type="text"
-                  id="respiratoryRate"
-                  value={respiratoryRate}
-                  onChange={(e) => setRespiratoryRate(e.target.value)}
-                  placeholder="e.g., 16 breaths/min"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
-                />
+            {/* Assessment & Plan Section */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Assessment & Plan</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {/* Assessment */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Assessment
+                  </label>
+                  <textarea
+                    value={assessment}
+                    onChange={(e) => setAssessment(e.target.value)}
+                    placeholder="Nurse's analysis of the situation..."
+                    rows={3}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
+                {/* Plan */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Plan
+                  </label>
+                  <textarea
+                    value={plan}
+                    onChange={(e) => setPlan(e.target.value)}
+                    placeholder="Next steps for patient care..."
+                    rows={3}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
+                  />
+                </div>
               </div>
-
-              {/* Oxygen Saturation */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <label
-                  htmlFor="oxygenSaturation"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Oxygen Saturation
-                </label>
-                <input
-                  type="text"
-                  id="oxygenSaturation"
-                  value={oxygenSaturation}
-                  onChange={(e) => setOxygenSaturation(e.target.value)}
-                  placeholder="e.g., 98%"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
-                />
-              </div>
-
-              {/* Pain Level */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <label
-                  htmlFor="painLevel"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Pain Level
-                </label>
-                <input
-                  type="text"
-                  id="painLevel"
-                  value={painLevel}
-                  onChange={(e) => setPainLevel(e.target.value)}
-                  placeholder="e.g., 3/10"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B52FF]"
-                />
-              </div>
-            </div>
+            </section>
 
             {/* Action Buttons with Mic Button */}
             <div className="mt-6 flex justify-around items-center">
               <button
                 type="button"
                 onClick={handleMicrophoneClick}
-                className={`p-4 rounded-full hover:bg-gray-200 transition-colors ${
+                className={`p-4 rounded-full transition-colors ${
                   isListening
                     ? "bg-red-500 hover:bg-red-600"
                     : "bg-[#8B52FF] hover:bg-opacity-90"
@@ -301,11 +542,11 @@ export default function NewEntry() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-8 py-4 rounded-lg font-medium text-white text-lg ${
+                className={`px-8 py-4 rounded-lg font-medium text-white text-lg shadow-md transition-colors ${
                   isSubmitting
                     ? "bg-gray-400"
                     : "bg-[#8B52FF] hover:bg-opacity-90"
-                } transition-colors shadow-md`}
+                }`}
               >
                 {isSubmitting ? "Saving..." : "Save Entry"}
               </button>
@@ -318,7 +559,7 @@ export default function NewEntry() {
           <h2 className="text-lg font-bold text-gray-900 mb-2 md:mb-4">
             Live Transcription
           </h2>
-          <div className="overflow-auto p-2 border border-gray-300 rounded-md h-[17vh] md:h-96 bg-white shadow-sm">
+          <div className="overflow-auto p-2 border border-gray-300 rounded-md bg-white shadow-sm h-[17vh] md:h-96">
             {transcript || interimResult ? (
               <p className="text-gray-700 whitespace-pre-wrap">
                 {transcript}

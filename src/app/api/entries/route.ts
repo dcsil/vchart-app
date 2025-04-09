@@ -65,10 +65,10 @@ export async function GET(request: NextRequest) {
 // POST - Add a new entry
 export async function POST(request: NextRequest) {
   try {
-    // Get the authenticated user from the cookie
-    const username = request.cookies.get("auth-session")?.value;
+    // Get the authenticated user session string from the cookie
+    const sessionCookie = request.cookies.get("auth-session")?.value;
 
-    if (!username) {
+    if (!sessionCookie) {
       return NextResponse.json(
         { message: "Authentication required" },
         { status: 401 }
@@ -78,12 +78,18 @@ export async function POST(request: NextRequest) {
     // Parse the request body
     const {
       patientId,
-      temperature,
-      bloodPressure,
-      pulseRate,
-      respiratoryRate,
-      oxygenSaturation,
-      painLevel,
+      vitalSigns,
+      subjective,
+      objective,
+      assessment,
+      plan,
+      medications,
+      interventions,
+      diagnostics,
+      riskAssessments,
+      educationProvided,
+      psychosocial,
+      communication,
       transcript,
     } = await request.json();
 
@@ -110,12 +116,18 @@ export async function POST(request: NextRequest) {
     // Create new entry
     const entry = new Entry({
       patientId,
-      temperature,
-      bloodPressure,
-      pulseRate,
-      respiratoryRate,
-      oxygenSaturation,
-      painLevel,
+      vitalSigns,
+      subjective,
+      objective,
+      assessment,
+      plan,
+      medications,
+      interventions,
+      diagnostics,
+      riskAssessments,
+      educationProvided,
+      psychosocial,
+      communication,
       transcript,
     });
 
@@ -137,11 +149,22 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    log("Error adding entry: " + error, "error");
-    return NextResponse.json(
-      { message: "Failed to add entry" },
-      { status: 500 }
-    );
+    let errorMessage = "Failed to add entry";
+    if (error instanceof Error) {
+      if (error.name === "ValidationError") {
+        errorMessage = `Validation Error: ${error.message}`;
+        log(
+          `Validation Error adding entry: ${JSON.stringify(
+            (error as mongoose.Error.ValidationError).errors
+          )}`,
+          "warn"
+        );
+      } else {
+        errorMessage = `Failed to add entry: ${error.message}`;
+      }
+    }
+    log(`Error adding entry: ${error}`, "error");
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
 
@@ -162,13 +185,20 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const {
       id,
-      temperature,
-      bloodPressure,
-      pulseRate,
-      respiratoryRate,
-      oxygenSaturation,
-      painLevel,
+      vitalSigns,
+      subjective,
+      objective,
+      assessment,
+      plan,
+      medications,
+      interventions,
+      diagnostics,
+      riskAssessments,
+      educationProvided,
+      psychosocial,
+      communication,
       reviewed,
+      transcript,
     } = data;
 
     if (!id) {
@@ -189,14 +219,26 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update only fields that are provided
-    if (temperature !== undefined) entry.temperature = temperature;
-    if (bloodPressure !== undefined) entry.bloodPressure = bloodPressure;
-    if (pulseRate !== undefined) entry.pulseRate = pulseRate;
-    if (respiratoryRate !== undefined) entry.respiratoryRate = respiratoryRate;
-    if (oxygenSaturation !== undefined)
-      entry.oxygenSaturation = oxygenSaturation;
-    if (painLevel !== undefined) entry.painLevel = painLevel;
+    if (vitalSigns !== undefined)
+      entry.vitalSigns = { ...entry.vitalSigns, ...vitalSigns };
+    if (subjective !== undefined)
+      entry.subjective = { ...entry.subjective, ...subjective };
+    if (objective !== undefined)
+      entry.objective = { ...entry.objective, ...objective };
+    if (assessment !== undefined) entry.assessment = assessment;
+    if (plan !== undefined) entry.plan = plan;
+    if (medications !== undefined) entry.medications = medications;
+    if (interventions !== undefined) entry.interventions = interventions;
+    if (diagnostics !== undefined)
+      entry.diagnostics = { ...entry.diagnostics, ...diagnostics };
+    if (riskAssessments !== undefined)
+      entry.riskAssessments = { ...entry.riskAssessments, ...riskAssessments };
+    if (educationProvided !== undefined)
+      entry.educationProvided = educationProvided;
+    if (psychosocial !== undefined) entry.psychosocial = psychosocial;
+    if (communication !== undefined) entry.communication = communication;
     if (reviewed !== undefined) entry.reviewed = reviewed;
+    if (transcript !== undefined) entry.transcript = transcript;
 
     // Save the updated entry
     await entry.save();
