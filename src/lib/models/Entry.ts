@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Define Entry interface
 export interface IEntry extends mongoose.Document {
@@ -9,41 +9,49 @@ export interface IEntry extends mongoose.Document {
   respiratoryRate: string;
   oxygenSaturation: string;
   painLevel: string;
+  transcript: string;
   reviewed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 // Define Entry schema
-const EntrySchema = new mongoose.Schema({
-  patientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Patient',
-    required: [true, 'Patient ID is required'],
+const EntrySchema = new mongoose.Schema(
+  {
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patient",
+      required: [true, "Patient ID is required"],
+    },
+    temperature: {
+      type: String,
+    },
+    bloodPressure: {
+      type: String,
+    },
+    pulseRate: {
+      type: String,
+    },
+    respiratoryRate: {
+      type: String,
+    },
+    oxygenSaturation: {
+      type: String,
+    },
+    painLevel: {
+      type: String,
+    },
+    transcript: {
+      type: String,
+      default: "",
+    },
+    reviewed: {
+      type: Boolean,
+      default: false,
+    },
   },
-  temperature: {
-    type: String,
-  },
-  bloodPressure: {
-    type: String,
-  },
-  pulseRate: {
-    type: String,
-  },
-  respiratoryRate: {
-    type: String,
-  },
-  oxygenSaturation: {
-    type: String,
-  },
-  painLevel: {
-    type: String,
-  },
-  reviewed: {
-    type: Boolean,
-    default: false
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 // Clear the model cache to ensure the updated schema is used
 if (mongoose.models.Entry) {
@@ -51,6 +59,6 @@ if (mongoose.models.Entry) {
 }
 
 // Create the model with the updated schema
-const Entry = mongoose.model<IEntry>('Entry', EntrySchema, 'entries');
+const Entry = mongoose.model<IEntry>("Entry", EntrySchema, "entries");
 
-export default Entry; 
+export default Entry;
