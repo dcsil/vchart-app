@@ -88,4 +88,4 @@ You can log in using the following credentials:
 
 ## Test Coverage
 
-The test coverage report is available [here](vchart-app/coverage/lcov-report/index.html).
+The test coverage report is available [here](./coverage/lcov-report/index.html).
