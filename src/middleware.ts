@@ -1,35 +1,59 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const authSession = request.cookies.get('auth-session');
-  const isLoggedIn = !!authSession?.value;
-  const isLoginPage = request.nextUrl.pathname === '/login';
+  const authSession = request.cookies.get("auth-session");
+  const pathname = request.nextUrl.pathname;
+  const isLoginPage = pathname === "/login";
 
-  // If user is not logged in and is not on the login page, redirect to login
-  if (!isLoggedIn && !isLoginPage) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // If the user is not logged in and is not on the login page, redirect to login.
+  if (!authSession) {
+    if (!isLoginPage) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next();
   }
 
-  // If user is logged in and tries to access login page, redirect to home
-  if (isLoggedIn && isLoginPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // Parse the session cookie (assumes it was set as a JSON string with properties like "role")
+  let sessionData;
+  try {
+    sessionData = JSON.parse(authSession.value);
+  } catch {
+    // In case of parsing error, clear cookie and redirect to login.
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  const { role } = sessionData;
+
+  // If the logged-in user attempts to access the login page, send them to their appropriate home.
+  if (isLoginPage) {
+    if (role === "admin") {
+      return NextResponse.redirect(new URL("/admin/users", request.url));
+    } else {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  // Enforce role-based restrictions for other pages:
+  if (role === "admin") {
+    // Admins should only access /admin routes and /api/logtail.
+    if (!pathname.startsWith("/admin") && pathname !== "/api/logtail") {
+      return NextResponse.redirect(new URL("/admin/users", request.url));
+    }
+  } else {
+    // Non-admin users should not access /admin routes.
+    if (pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  // If no restrictions apply, allow the request to continue.
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    // Apply middleware to all requests except API routes, static files, image optimization and favicon.
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
-}; 
+};

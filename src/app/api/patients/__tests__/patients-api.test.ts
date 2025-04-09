@@ -1,262 +1,349 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { GET, POST, DELETE } from "../route";
+import connectToDatabase from "@/lib/mongodb";
+import User from "@/lib/models/User";
+import Patient from "@/lib/models/Patient";
+import { log } from "@/app/utils/log";
 
-jest.mock('next/server', () => {
-  const originalModule = jest.requireActual('next/server');
+// Mock external dependencies.
+jest.mock("@/lib/mongodb", () => jest.fn().mockResolvedValue({}));
+jest.mock("@/lib/models/User");
+jest.mock("@/lib/models/Patient");
+jest.mock("@/app/utils/log", () => ({ log: jest.fn() }));
+
+// Override NextResponse.json so that tests can inspect the response and call .json()
+beforeEach(() => {
+  jest.spyOn(NextResponse, "json").mockImplementation((body, init) => {
+    return {
+      status: init?.status || 200,
+      // Provide a json method so that res.json() can be awaited by tests.
+      json: async () => body,
+      body,
+    } as unknown as NextResponse;
+  });
+  jest.clearAllMocks();
+});
+
+// Helper function to simulate a NextRequest.
+interface CreateRequestOptions {
+  cookieValue?: string;
+  url?: string;
+  jsonBody?: any;
+}
+function createNextRequest({
+  cookieValue,
+  url,
+  jsonBody,
+}: CreateRequestOptions): NextRequest {
   return {
-    ...originalModule,
-    NextResponse: {
-      json: jest.fn().mockImplementation((body, options) => {
-        return {
-          status: options?.status || 200,
-          json: async () => body,
-        };
-      }),
+    cookies: {
+      get: jest
+        .fn()
+        .mockReturnValue(cookieValue ? { value: cookieValue } : null),
     },
-  };
+    url: url || "http://localhost/api/patients",
+    json: jsonBody ? jest.fn().mockResolvedValue(jsonBody) : jest.fn(),
+  } as unknown as NextRequest;
+}
+
+describe("Patients API Routes - GET", () => {
+  it("returns 401 if auth-session cookie is missing", async () => {
+    const req = createNextRequest({ cookieValue: undefined });
+    const res = await GET(req);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Authentication required" });
+  });
+
+  it("returns 401 if auth-session cookie has no username", async () => {
+    const req = createNextRequest({ cookieValue: JSON.stringify({}) });
+    const res = await GET(req);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Authentication required" });
+  });
+
+  it("returns 404 if user is not found", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const res = await GET(req);
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ message: "User not found" });
+  });
+
+  it("returns a single patient when id is provided and patient exists", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients?id=patient123",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    (Patient.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "patient123",
+      firstName: "John",
+      lastName: "Doe",
+      roomNumber: "101",
+      diagnosis: "Flu",
+      nurseId: "nurse123",
+    });
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    // Updated expected value to include nurseId.
+    expect(res.body).toEqual({
+      patient: {
+        _id: "patient123",
+        firstName: "John",
+        lastName: "Doe",
+        roomNumber: "101",
+        diagnosis: "Flu",
+        nurseId: "nurse123",
+      },
+    });
+  });
+
+  it("returns 404 if patient id is provided but not found", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients?id=patient123",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    (Patient.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const res = await GET(req);
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({
+      message: "Patient not found or not associated with this user",
+    });
+  });
+
+  it("returns all patients when no id is provided", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    (Patient.find as jest.Mock).mockReturnValueOnce({
+      sort: jest.fn().mockResolvedValueOnce([
+        { _id: "p1", firstName: "Alice" },
+        { _id: "p2", firstName: "Bob" },
+      ]),
+    });
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      patients: [
+        { _id: "p1", firstName: "Alice" },
+        { _id: "p2", firstName: "Bob" },
+      ],
+    });
+  });
+
+  it("returns 500 if an error occurs in GET", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+    });
+    (connectToDatabase as jest.Mock).mockRejectedValueOnce(
+      new Error("DB Error")
+    );
+    const res = await GET(req);
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ message: "Failed to fetch patients" });
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining("Error fetching patients:"),
+      "error"
+    );
+  });
 });
 
-jest.mock('mongoose', () => {
-  return {
-    Types: {
-      ObjectId: jest.fn().mockImplementation((id) => id),
-    },
-  };
+describe("Patients API Routes - POST", () => {
+  it("returns 401 if auth-session cookie is missing", async () => {
+    const req = createNextRequest({ cookieValue: undefined, jsonBody: {} });
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Authentication required" });
+  });
+
+  it("returns 400 if required fields are missing", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      jsonBody: { firstName: "John", lastName: "Doe" }, // missing roomNumber and diagnosis
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ message: "All fields are required" });
+  });
+
+  it("returns 404 if user is not found", async () => {
+    const patientData = {
+      firstName: "John",
+      lastName: "Doe",
+      roomNumber: "101",
+      diagnosis: "Flu",
+    };
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      jsonBody: patientData,
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const res = await POST(req);
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ message: "User not found" });
+  });
+
+  it("returns 201 when patient is added successfully", async () => {
+    const patientData = {
+      firstName: "John",
+      lastName: "Doe",
+      roomNumber: "101",
+      diagnosis: "Flu",
+    };
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      jsonBody: patientData,
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    // Mock the Patient constructor to simulate a successful save.
+    (Patient as any).mockImplementation(function (this: any, data: any) {
+      Object.assign(this, data);
+      this.save = jest.fn().mockImplementation(() => {
+        this._id = "patient123";
+        return Promise.resolve(this);
+      });
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(201);
+    expect(await res.json()).toEqual({
+      message: "Patient added successfully",
+      patient: {
+        _id: "patient123",
+        firstName: "John",
+        lastName: "Doe",
+        roomNumber: "101",
+        diagnosis: "Flu",
+      },
+    });
+  });
+
+  it("returns 500 if an error occurs in POST", async () => {
+    const patientData = {
+      firstName: "John",
+      lastName: "Doe",
+      roomNumber: "101",
+      diagnosis: "Flu",
+    };
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      jsonBody: patientData,
+    });
+    (connectToDatabase as jest.Mock).mockRejectedValueOnce(
+      new Error("DB Error")
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ message: "Failed to add patient" });
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining("Error adding patient:"),
+      "error"
+    );
+  });
 });
 
-jest.mock('@/lib/mongodb', () => {
-  return jest.fn().mockResolvedValue({});
+describe("Patients API Routes - DELETE", () => {
+  it("returns 401 if auth-session cookie is missing", async () => {
+    const req = createNextRequest({
+      cookieValue: undefined,
+      url: "http://localhost/api/patients?id=123",
+    });
+    const res = await DELETE(req);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Authentication required" });
+  });
+
+  it("returns 400 if patient ID is not provided", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients",
+    });
+    const res = await DELETE(req);
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ message: "Patient ID is required" });
+  });
+
+  it("returns 404 if user is not found", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients?id=patient123",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const res = await DELETE(req);
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ message: "User not found" });
+  });
+
+  it("returns 404 if patient is not found or not associated with the user", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients?id=patient123",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    (Patient.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const res = await DELETE(req);
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({
+      message: "Patient not found or not associated with this user",
+    });
+  });
+
+  it("returns 200 when patient is deleted successfully", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients?id=patient123",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    (Patient.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "patient123",
+      nurseId: "nurse123",
+    });
+    (Patient.findByIdAndDelete as jest.Mock).mockResolvedValueOnce({});
+    const res = await DELETE(req);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ message: "Patient deleted successfully" });
+  });
+
+  it("returns 500 if an error occurs in DELETE", async () => {
+    const req = createNextRequest({
+      cookieValue: JSON.stringify({ username: "testuser" }),
+      url: "http://localhost/api/patients?id=patient123",
+    });
+    (User.findOne as jest.Mock).mockResolvedValueOnce({
+      _id: "nurse123",
+      username: "testuser",
+    });
+    (Patient.findOne as jest.Mock).mockRejectedValueOnce(
+      new Error("Delete error")
+    );
+    const res = await DELETE(req);
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ message: "Failed to delete patient" });
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining("Error deleting patient:"),
+      "error"
+    );
+  });
 });
-
-// Mock the Patient model
-jest.mock('@/lib/models/Patient', () => {
-  return {
-    find: jest.fn().mockResolvedValue([]),
-    findById: jest.fn(),
-    findByIdAndDelete: jest.fn().mockResolvedValue({}),
-    prototype: {
-      save: jest.fn().mockResolvedValue({}),
-    },
-  };
-});
-
-// Mock the User model
-jest.mock('@/lib/models/User', () => {
-  return {
-    findOne: jest.fn(),
-    prototype: {
-      save: jest.fn().mockResolvedValue({}),
-    },
-  };
-});
-
-jest.mock('@/app/utils/log', () => ({
-  log: jest.fn(),
-}));
-
-import connectToDatabase from '@/lib/mongodb';
-import Patient from '@/lib/models/Patient';
-import User from '@/lib/models/User';
-import { GET, POST, DELETE } from '../route';
-
-describe('Patients API Endpoints', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  // Helper to create a mock patient
-  const createMockPatient = (id = '123') => ({
-    _id: id,
-    firstName: 'John',
-    lastName: 'Doe',
-    roomNumber: '101',
-    diagnosis: 'Flu',
-    save: jest.fn().mockResolvedValue({}),
-  });
-
-  // Helper to create a mock user
-  const createMockUser = (patients: string[] = []) => ({
-    _id: 'user123',
-    username: 'testuser',
-    patients: patients.map(id => ({ toString: () => id })),
-    save: jest.fn().mockResolvedValue({}),
-  });
-
-  describe('GET /api/patients', () => {
-    it('should return 401 if user is not authenticated', async () => {
-      // Mock request without auth cookie
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue(undefined),
-        },
-        url: 'http://localhost:3000/api/patients',
-      } as unknown as NextRequest;
-
-      const response = await GET(request);
-      
-      expect(response.status).toBe(401);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('Authentication required');
-    });
-
-    it('should return 404 if user is not found', async () => {
-      // Mock request with auth cookie
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue({ value: 'testuser' }),
-        },
-        url: 'http://localhost:3000/api/patients',
-      } as unknown as NextRequest;
-
-      // Mock User.findOne to return null (user not found)
-      (User.findOne as jest.Mock).mockResolvedValueOnce(null);
-
-      const response = await GET(request);
-      
-      expect(response.status).toBe(404);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('User not found');
-      
-      expect(connectToDatabase).toHaveBeenCalled();
-    });
-
-    it('should return empty patients array if user has no patients', async () => {
-      // Mock request with auth cookie
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue({ value: 'testuser' }),
-        },
-        url: 'http://localhost:3000/api/patients',
-      } as unknown as NextRequest;
-
-      // Mock User.findOne to return a user with no patients
-      (User.findOne as jest.Mock).mockResolvedValueOnce(createMockUser([]));
-      
-      const response = await GET(request);
-      
-      expect(response.status).toBe(200);
-      const responseData = await response.json();
-      expect(responseData.patients).toEqual([]);
-    });
-
-    it('should return a specific patient when id is provided', async () => {
-      const patientId = '123';
-      const mockPatient = createMockPatient(patientId);
-      
-      // Mock request with auth cookie and patient ID
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue({ value: 'testuser' }),
-        },
-        url: `http://localhost:3000/api/patients?id=${patientId}`,
-      } as unknown as NextRequest;
-
-      // Mock User.findOne to return a user with the patient
-      (User.findOne as jest.Mock).mockResolvedValueOnce(createMockUser([patientId]));
-      
-      // Mock Patient.findById to return the patient
-      (Patient.findById as jest.Mock).mockResolvedValueOnce(mockPatient);
-      
-      const response = await GET(request);
-      
-      expect(response.status).toBe(200);
-      const responseData = await response.json();
-      expect(responseData.patient).toEqual(mockPatient);
-    });
-  });
-
-  describe('POST /api/patients', () => {
-    it('should return 401 if user is not authenticated', async () => {
-      // Mock request without auth cookie
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue(undefined),
-        },
-        json: jest.fn(),
-      } as unknown as NextRequest;
-
-      const response = await POST(request);
-      
-      expect(response.status).toBe(401);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('Authentication required');
-    });
-
-    it('should return 400 if required fields are missing', async () => {
-      // Mock request with auth cookie but incomplete body
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue({ value: 'testuser' }),
-        },
-        json: jest.fn().mockResolvedValueOnce({
-          firstName: 'John',
-          // Missing lastName, roomNumber, diagnosis
-        }),
-      } as unknown as NextRequest;
-
-      const response = await POST(request);
-      
-      expect(response.status).toBe(400);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('All fields are required');
-    });
-  });
-
-  describe('DELETE /api/patients', () => {
-    it('should return 401 if user is not authenticated', async () => {
-      // Mock request without auth cookie
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue(undefined),
-        },
-        url: 'http://localhost:3000/api/patients?id=123',
-      } as unknown as NextRequest;
-
-      const response = await DELETE(request);
-      
-      expect(response.status).toBe(401);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('Authentication required');
-    });
-
-    it('should return 400 if patient ID is missing', async () => {
-      // Mock request with auth cookie but no patient ID
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue({ value: 'testuser' }),
-        },
-        url: 'http://localhost:3000/api/patients',
-      } as unknown as NextRequest;
-
-      const response = await DELETE(request);
-      
-      expect(response.status).toBe(400);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('Patient ID is required');
-    });
-    
-    it('should delete a patient successfully', async () => {
-      const patientId = '123';
-      const mockUser = createMockUser([patientId]);
-      
-      // Mock request with auth cookie and patient ID
-      const request = {
-        cookies: {
-          get: jest.fn().mockReturnValue({ value: 'testuser' }),
-        },
-        url: `http://localhost:3000/api/patients?id=${patientId}`,
-      } as unknown as NextRequest;
-      
-      // Mock User.findOne to return a user with the patient
-      (User.findOne as jest.Mock).mockResolvedValueOnce(mockUser);
-      
-      const response = await DELETE(request);
-      
-      expect(response.status).toBe(200);
-      const responseData = await response.json();
-      expect(responseData.message).toBe('Patient deleted successfully');
-      
-      expect(Patient.findByIdAndDelete).toHaveBeenCalledWith(patientId);
-      expect(mockUser.save).toHaveBeenCalled();
-    });
-  });
-}); 

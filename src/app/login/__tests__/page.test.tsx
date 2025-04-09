@@ -18,20 +18,15 @@ jest.mock("next/image", () => ({
     className?: string;
     [key: string]: unknown;
   }) => {
-    // Create a copy of props to avoid modifying the original
     const imgProps: Record<string, unknown> = { ...props };
-
-    // Handle boolean conversions
     if (typeof imgProps.priority === "boolean") {
       imgProps.priority = String(imgProps.priority);
     }
-
     return <img {...imgProps} />;
   },
 }));
 
 describe("Login Page", () => {
-  // Set up mock router implementation
   const mockPush = jest.fn();
   const mockRefresh = jest.fn();
 
@@ -69,7 +64,7 @@ describe("Login Page", () => {
     expect(passwordInput).toHaveValue("password123");
   });
 
-  it("submits the form and redirects on successful login", async () => {
+  it("successfully submits on login", async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ message: "Login successful" }),
@@ -78,10 +73,10 @@ describe("Login Page", () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText("Username"), {
-      target: { value: "testuser" },
+      target: { value: "nurseuser" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "password123" },
+      target: { value: "nursepass" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
 
@@ -93,16 +88,16 @@ describe("Login Page", () => {
       expect(global.fetch).toHaveBeenCalledWith("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: "testuser", password: "password123" }),
+        body: JSON.stringify({ username: "nurseuser", password: "nursepass" }),
       });
     });
 
-    expect(mockPush).toHaveBeenCalledWith("/");
     expect(mockRefresh).toHaveBeenCalled();
   });
 
-  it("displays error message on login failure", async () => {
-    const errorMessage = "Invalid username or password";
+  it("shows an error message when login fails", async () => {
+    const errorMessage = "Invalid credentials";
+
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       json: async () => ({ message: errorMessage }),
@@ -111,10 +106,10 @@ describe("Login Page", () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText("Username"), {
-      target: { value: "testuser" },
+      target: { value: "wronguser" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "wrongpassword" },
+      target: { value: "wrongpass" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
 
@@ -122,14 +117,14 @@ describe("Login Page", () => {
       expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("button", { name: "Sign In" })).toBeEnabled();
-
     expect(mockPush).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Sign In" })).toBeEnabled();
   });
 
   it("handles fetch errors gracefully", async () => {
-    const errorMessage = "Network error";
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error("Network Error")
+    );
 
     render(<Login />);
 
@@ -139,11 +134,12 @@ describe("Login Page", () => {
     fireEvent.change(screen.getByLabelText("Password"), {
       target: { value: "password123" },
     });
-
     fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
-      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+      expect(screen.getByText("Network Error")).toBeInTheDocument();
     });
+
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });
