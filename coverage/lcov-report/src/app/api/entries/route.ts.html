@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.05% </span>
+                <span class="strong">86.23% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>195/224</span>
+                <span class='fraction'>188/218</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.05% </span>
+                <span class="strong">86.23% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>195/224</span>
+                <span class='fraction'>188/218</span>
             </div>
         
             
@@ -281,12 +281,7 @@
 <a name='L216'></a><a href='#L216'>216</a>
 <a name='L217'></a><a href='#L217'>217</a>
 <a name='L218'></a><a href='#L218'>218</a>
-<a name='L219'></a><a href='#L219'>219</a>
-<a name='L220'></a><a href='#L220'>220</a>
-<a name='L221'></a><a href='#L221'>221</a>
-<a name='L222'></a><a href='#L222'>222</a>
-<a name='L223'></a><a href='#L223'>223</a>
-<a name='L224'></a><a href='#L224'>224</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L219'></a><a href='#L219'>219</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -327,15 +322,9 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -381,6 +370,7 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -399,6 +389,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -479,15 +470,13 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -509,22 +498,23 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">5x</span></td><td class="text"><pre class="prettyprint lang-js">import { NextRequest, NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Entry from '@/lib/models/Entry';
-import Patient from '@/lib/models/Patient';
-import mongoose from 'mongoose';
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { NextRequest, NextResponse } from "next/server";
+import connectToDatabase from "@/lib/mongodb";
+import Entry from "@/lib/models/Entry";
+import Patient from "@/lib/models/Patient";
+import mongoose from "mongoose";
 import { log } from "@/app/utils/log";
 &nbsp;
 // GET - Fetch entries for a patient
 export async function GET(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const username = request.cookies.get("auth-session")?.value;
 &nbsp;
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -534,46 +524,40 @@ export async function GET(request: NextRequest) {
 &nbsp;
     // Get patient ID and entry ID from the URL
     const { searchParams } = new URL(request.url);
-    const patientId = searchParams.get('patientId');
-    const entryId = searchParams.get('id');
+    const patientId = searchParams.get("patientId");
+    const entryId = searchParams.get("id");
 &nbsp;
     // If entry ID is provided, fetch a single entry
     if (entryId) {
       const entry = await Entry.findById(entryId);
-      
+&nbsp;
       if (!entry) {
         return NextResponse.json(
-          { message: 'Entry not found' },
+          { message: "Entry not found" },
           { status: 404 }
         );
       }
-      
-      return NextResponse.json(
-        { entry },
-        { status: 200 }
-      );
+&nbsp;
+      return NextResponse.json({ entry }, { status: 200 });
     }
 &nbsp;
     // If only patient ID is provided, fetch all entries for that patient
     if (patientId) {
-      const entries = await Entry.find({ 
-        patientId: patientId 
+      const entries = await Entry.find({
+        patientId: patientId,
       }).sort({ createdAt: -1 }); // Sort by most recent first
 &nbsp;
-      return NextResponse.json(
-        { entries },
-        { status: 200 }
-      );
+      return NextResponse.json({ entries }, { status: 200 });
     }
 &nbsp;
     return NextResponse.json(
-      { message: 'Patient ID or Entry ID is required' },
+      { message: "Patient ID or Entry ID is required" },
       { status: 400 }
     );
   } catch (error) {
-    log('Error fetching entries: ' + error, 'error');
+    log("Error fetching entries: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to fetch entries' },
+      { message: "Failed to fetch entries" },
       { status: 500 }
     );
   }
@@ -583,30 +567,31 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const username = request.cookies.get("auth-session")?.value;
 &nbsp;
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 &nbsp;
     // Parse the request body
-    const { 
-      patientId, 
-      temperature, 
-      bloodPressure, 
-      pulseRate, 
-      respiratoryRate, 
-      oxygenSaturation, 
-      painLevel 
+    const {
+      patientId,
+      temperature,
+      bloodPressure,
+      pulseRate,
+      respiratoryRate,
+      oxygenSaturation,
+      painLevel,
+      transcript,
     } = await request.json();
 &nbsp;
     // Validate required fields
     if (!patientId) {
       return NextResponse.json(
-        { message: 'Patient ID is required' },
+        { message: "Patient ID is required" },
         { status: 400 }
       );
     }
@@ -618,7 +603,7 @@ export async function POST(request: NextRequest) {
     const patient = await Patient.findById(patientId);
     if (!patient) {
       return NextResponse.json(
-        { message: 'Patient not found' },
+        { message: "Patient not found" },
         { status: 404 }
       );
 <span class="branch-0 cbranch-no" title="branch not covered" >    }</span>
@@ -631,7 +616,8 @@ export async function POST(request: NextRequest) {
 <span class="cstat-no" title="statement not covered" >      pulseRate,</span>
 <span class="cstat-no" title="statement not covered" >      respiratoryRate,</span>
 <span class="cstat-no" title="statement not covered" >      oxygenSaturation,</span>
-<span class="cstat-no" title="statement not covered" >      painLevel</span>
+<span class="cstat-no" title="statement not covered" >      painLevel,</span>
+<span class="cstat-no" title="statement not covered" >      transcript,</span>
 <span class="cstat-no" title="statement not covered" >    });</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    // Save the entry</span>
@@ -645,16 +631,16 @@ export async function POST(request: NextRequest) {
 <span class="cstat-no" title="statement not covered" >    await patient.save();</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    return NextResponse.json(</span>
-<span class="cstat-no" title="statement not covered" >      { </span>
-<span class="cstat-no" title="statement not covered" >        message: 'Entry added successfully',</span>
-<span class="cstat-no" title="statement not covered" >        entry</span>
+<span class="cstat-no" title="statement not covered" >      {</span>
+<span class="cstat-no" title="statement not covered" >        message: "Entry added successfully",</span>
+<span class="cstat-no" title="statement not covered" >        entry,</span>
 <span class="cstat-no" title="statement not covered" >      },</span>
 <span class="cstat-no" title="statement not covered" >      { status: 201 }</span>
 <span class="cstat-no" title="statement not covered" >    );</span>
   } catch (error) {
-    log('Error adding entry: ' + error, 'error');
+    log("Error adding entry: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to add entry' },
+      { message: "Failed to add entry" },
       { status: 500 }
     );
   }
@@ -664,31 +650,31 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Get the authenticated user from the cookie
-    const username = request.cookies.get('auth-session')?.value;
+    const username = request.cookies.get("auth-session")?.value;
 &nbsp;
     if (!username) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 &nbsp;
     // Parse the request body
     const data = await request.json();
-    const { 
+    const {
       id,
-      temperature, 
-      bloodPressure, 
-      pulseRate, 
-      respiratoryRate, 
-      oxygenSaturation, 
+      temperature,
+      bloodPressure,
+      pulseRate,
+      respiratoryRate,
+      oxygenSaturation,
       painLevel,
-      reviewed
+      reviewed,
     } = data;
 &nbsp;
     if (!id) {
       return NextResponse.json(
-        { message: 'Entry ID is required' },
+        { message: "Entry ID is required" },
         { status: 400 }
       );
     }
@@ -698,12 +684,9 @@ export async function PUT(request: NextRequest) {
 &nbsp;
     // Find the entry
     const entry = await Entry.findById(id as string);
-    
+&nbsp;
     if (!entry) {
-      return NextResponse.json(
-        { message: 'Entry not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "Entry not found" }, { status: 404 });
     }
 &nbsp;
     // Update only fields that are provided
@@ -711,7 +694,8 @@ export async function PUT(request: NextRequest) {
     if (bloodPressure !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.bloodPressure = bloodPressure;</span>
     if (pulseRate !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.pulseRate = pulseRate;</span>
     if (respiratoryRate !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.respiratoryRate = respiratoryRate;</span>
-    if (oxygenSaturation !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.oxygenSaturation = oxygenSaturation;</span>
+    if (oxygenSaturation !== undefined)
+<span class="branch-0 cbranch-no" title="branch not covered" >      entry.oxygenSaturation = oxygenSaturation;</span>
     if (painLevel !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.painLevel = painLevel;</span>
     if (reviewed !== undefined) entry.reviewed = reviewed;
 &nbsp;
@@ -719,27 +703,28 @@ export async function PUT(request: NextRequest) {
     await entry.save();
 &nbsp;
     return NextResponse.json(
-      { 
-        message: 'Entry updated successfully',
-        entry
+      {
+        message: "Entry updated successfully",
+        entry,
       },
       { status: 200 }
     );
   } catch (error) {
-    log('Error updating entry: ' + error, 'error');
+    log("Error updating entry: " + error, "error");
     return NextResponse.json(
-      { message: 'Failed to update entry' },
+      { message: "Failed to update entry" },
       { status: 500 }
     );
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-03T03:01:50.221Z
+                at 2025-04-09T19:59:14.977Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
