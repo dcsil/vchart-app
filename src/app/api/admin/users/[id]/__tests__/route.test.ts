@@ -35,7 +35,7 @@ describe("Admin Users API Endpoints", () => {
       } as unknown as NextRequest;
       const context = { params: { id: "userId123" } };
 
-      const res = await PUT(req, context);
+      const res = await PUT(req, context as any);
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ message: "Unauthorized" });
     });
@@ -50,7 +50,7 @@ describe("Admin Users API Endpoints", () => {
       } as unknown as NextRequest;
       const context = { params: { id: "userId123" } };
 
-      const res = await PUT(req, context);
+      const res = await PUT(req, context as any);
       expect(res.status).toBe(403);
       expect(res.body).toEqual({ message: "Forbidden" });
     });
@@ -77,7 +77,7 @@ describe("Admin Users API Endpoints", () => {
         username: "newUsername",
       });
 
-      const res = await PUT(req, context);
+      const res = await PUT(req, context as any);
       expect(connectToDatabase).toHaveBeenCalled();
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
         "userId123",
@@ -106,7 +106,7 @@ describe("Admin Users API Endpoints", () => {
       // Simulate no matching user
       (User.findByIdAndUpdate as jest.Mock).mockResolvedValue(null);
 
-      const res = await PUT(req, context);
+      const res = await PUT(req, context as any);
       expect(res.status).toBe(404);
       expect(res.body).toEqual({ message: "User not found" });
     });
@@ -128,7 +128,7 @@ describe("Admin Users API Endpoints", () => {
       // Simulate an error (e.g. DB connection failure)
       (connectToDatabase as jest.Mock).mockRejectedValue(new Error("DB error"));
 
-      const res = await PUT(req, context);
+      const res = await PUT(req, context as any);
       expect(log).toHaveBeenCalled(); // Error should be logged
       expect(res.status).toBe(500);
       expect(res.body).toEqual({ message: "Internal server error" });
@@ -143,7 +143,7 @@ describe("Admin Users API Endpoints", () => {
       } as unknown as NextRequest;
       const context = { params: { id: "userId123" } };
 
-      const res = await DELETE(req, context);
+      const res = await DELETE(req, context as any);
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ message: "Unauthorized" });
     });
@@ -157,7 +157,7 @@ describe("Admin Users API Endpoints", () => {
       } as unknown as NextRequest;
       const context = { params: { id: "userId123" } };
 
-      const res = await DELETE(req, context);
+      const res = await DELETE(req, context as any);
       expect(res.status).toBe(403);
       expect(res.body).toEqual({ message: "Forbidden" });
     });
@@ -177,7 +177,7 @@ describe("Admin Users API Endpoints", () => {
         _id: "userId123",
       });
 
-      const res = await DELETE(req, context);
+      const res = await DELETE(req, context as any);
       expect(connectToDatabase).toHaveBeenCalled();
       expect(User.findByIdAndDelete).toHaveBeenCalledWith("userId123");
       expect(res.status).toBe(200);
@@ -197,7 +197,7 @@ describe("Admin Users API Endpoints", () => {
       // Simulate that no user is found to delete.
       (User.findByIdAndDelete as jest.Mock).mockResolvedValue(null);
 
-      const res = await DELETE(req, context);
+      const res = await DELETE(req, context as any);
       expect(res.status).toBe(404);
       expect(res.body).toEqual({ message: "User not found" });
     });
@@ -217,7 +217,7 @@ describe("Admin Users API Endpoints", () => {
         new Error("Delete error")
       );
 
-      const res = await DELETE(req, context);
+      const res = await DELETE(req, context as any);
       expect(log).toHaveBeenCalled();
       expect(res.status).toBe(500);
       expect(res.body).toEqual({ message: "Internal server error" });

@@ -20,8 +20,15 @@ function getSession(request: NextRequest) {
 // PUT: Update a user account
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>;
+  }
 ) {
+  // Await the params before using them
+  const { id: userId } = await params;
+
   try {
     const session = getSession(request);
     if (!session) {
@@ -31,7 +38,6 @@ export async function PUT(
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const userId = params.id;
     const { username, password, role } = await request.json();
     await connectToDatabase();
 
@@ -39,7 +45,7 @@ export async function PUT(
       {};
     if (username) updateData.username = username;
     if (role) updateData.role = role;
-    // Directly store the plain password per request instructions (not recommended)
+    // Directly storing the plain password per request instructions (not recommended)
     if (password) updateData.password = password;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
@@ -65,8 +71,15 @@ export async function PUT(
 // DELETE: Delete a user account
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>;
+  }
 ) {
+  // Await the params before using them
+  const { id: userId } = await params;
+
   try {
     const session = getSession(request);
     if (!session) {
@@ -76,7 +89,6 @@ export async function DELETE(
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const userId = params.id;
     await connectToDatabase();
 
     const deletedUser = await User.findByIdAndDelete(userId);
