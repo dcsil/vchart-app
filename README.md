@@ -8,6 +8,9 @@ Welcome to the VChart application! This project is built with Next.js.
 - [Developer Setup](#developer-setup)
 - [Available Scripts](#available-scripts)
 - [Deployed Website](#deployed-website)
+- [Credentials](#credentials)
+- [Demo](#demo)
+- [Test Coverage](#test-coverage)
 
 ## Installation
 
@@ -83,8 +86,19 @@ The VChart application is live! You can view the deployed version at:
 
 You can log in using the following credentials:
 
-- **Username**: `test`
-- **Password**: `password`
+- **Admin**:
+   - **Username**: `admin`
+   - **Password**: `password`
+     
+- **Nurse**:
+   - **Username**: `test`
+   - **Password**: `password`
+
+## Demo
+
+- You can view our demo [here](https://drive.google.com/file/d/1UMx4YuTAQ3G0JyqtRwisu2ecpwjH55-r/view)
+
+- You can view our short write-up [here](https://github.com/dcsil/vchart-app/blob/main/docs/vchart-demo.md)
 
 ## Test Coverage
 
