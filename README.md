@@ -88,4 +88,4 @@ You can log in using the following credentials:
 
 ## Test Coverage
 
-The test coverage report is available [here](./coverage/lcov-report/index.html).
+The test coverage report is available [here](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dcsil/vchart-app/main/coverage/lcov-report/index.html).
