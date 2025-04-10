@@ -98,7 +98,7 @@ While a full HIPAA-compliant deployment includes many **administrative and physi
 
 As part of our CI pipeline, we’ve integrated tools to **enforce and measure code quality**, helping us maintain a clean, maintainable, and reliable codebase.
 
-> **CI Run Example**: [GitHub Actions – Tests](https://github.com/dcsil/vchart-app/actions/runs/14370116124/job/40291479501)  
+> **CI Run Example**: [GitHub Actions](https://github.com/dcsil/vchart-app/actions/runs/14370116124/job/40291479501)  
 
 
 ### Linting – ESLint
