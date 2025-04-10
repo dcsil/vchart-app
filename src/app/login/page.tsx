@@ -50,7 +50,7 @@ export default function Login() {
       <div className="w-full max-w-sm sm:max-w-md md:max-w-lg border-2 border-gray-300 rounded-lg p-6 sm:p-8 md:p-10">
         <div className="flex justify-center mb-4">
           <Image
-            src="/static/images/logo.png"
+            src="/logo.png"
             alt="VChart Logo"
             width={120}
             height={120}
