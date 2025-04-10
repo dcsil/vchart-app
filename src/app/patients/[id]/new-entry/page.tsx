@@ -73,8 +73,6 @@ export default function NewEntry() {
     const fullText = `${transcript} ${interimResult}`.trim();
     if (!fullText) return;
 
-    // 500ms debounce
-    // 500ms debounce
     const timer = setTimeout(async () => {
       const cohereResponse = await callCohereLLM(fullText);
       if (cohereResponse) {
@@ -136,7 +134,7 @@ export default function NewEntry() {
           if (parsed.assessment) setAssessment(parsed.assessment);
           if (parsed.plan) setPlan(parsed.plan);
         } catch (error) {
-          console.error("Error parsing Cohere response:", error);
+          log("Error parsing Cohere response:" + error, "error");
         }
       }
     }, 2000);
