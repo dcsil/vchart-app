@@ -137,7 +137,7 @@ export default function NewEntry() {
           log("Error parsing Cohere response:" + error, "error");
         }
       }
-    }, 2000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [transcript, interimResult]);
