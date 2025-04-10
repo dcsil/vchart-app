@@ -6,7 +6,8 @@ VChart is an AI-powered charting tool designed for nurses. It simplifies patient
 
 This demo covers two main user flows: **Admin** and **Nurse**.
 
-LInk to demo: https://drive.google.com/file/d/1UMx4YuTAQ3G0JyqtRwisu2ecpwjH55-r/view
+Link to demo: https://drive.google.com/file/d/1UMx4YuTAQ3G0JyqtRwisu2ecpwjH55-r/view
+
 ---
 
 ## Admin Flow
