@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const authSession = request.cookies.get("auth-session");
   const pathname = request.nextUrl.pathname;
+
+  // If the request is for the logo, bypass middleware
+  if (pathname === "/logo.png") {
+    return NextResponse.next();
+  }
+
+  const authSession = request.cookies.get("auth-session");
   const isLoginPage = pathname === "/login";
 
   // If the user is not logged in and is not on the login page, redirect to login.
