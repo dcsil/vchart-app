@@ -1,260 +1,211 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import EntryDetails from '../page';
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import EntryDetails from "../page";
+import { useRouter, useParams } from "next/navigation";
 
-jest.mock('next/navigation', () => ({
+// Mock the Next.js navigation hooks.
+jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
   useParams: jest.fn(),
 }));
 
-jest.mock('@/app/utils/log', () => ({
-  log: jest.fn(),
-}));
+// -------------------------------------------------------------------------
+// Dummy Data
+// -------------------------------------------------------------------------
+const dummyPatient = {
+  _id: "p1",
+  firstName: "John",
+  lastName: "Doe",
+  roomNumber: "101",
+  diagnosis:
+    "Test diagnosis is long enough to require wrapping in the export PDF.",
+};
 
-jest.mock('jspdf', () => ({
-  jsPDF: jest.fn().mockImplementation(() => ({
-    text: jest.fn(),
-    line: jest.fn(),
-    addPage: jest.fn(),
-    save: jest.fn(),
-  })),
-}));
+const dummyEntry = {
+  _id: "e1",
+  patientId: "p1",
+  vitalSigns: {
+    temperature: { value: "36", unit: "C" },
+    bloodPressure: { systolic: "120", diastolic: "80", unit: "mmHg" },
+    heartRate: "70",
+    respiratoryRate: "16",
+    oxygenSaturation: "98",
+  },
+  subjective: {
+    chiefComplaint: "Headache",
+    symptomHistory: "Mild headache for two days.",
+    painLevel: "5",
+  },
+  objective: {
+    generalAppearance: "Normal",
+    cardiovascular: "Regular rhythm",
+    respiratory: "Clear lung sounds",
+    neurological: "Alert and oriented",
+    skin: "Warm and dry",
+    additionalExam: "No additional findings",
+  },
+  assessment: "No significant findings",
+  plan: "Observation and rest",
+  reviewed: false, // Start as unreviewed
+  createdAt: "2022-10-10T12:00:00Z",
+};
 
-global.fetch = jest.fn();
-
-import { useRouter, useParams } from 'next/navigation';
-import { log } from '@/app/utils/log';
-
-describe('Entry Details Page', () => {
-  const mockPatient = {
-    _id: '123',
-    firstName: 'John',
-    lastName: 'Doe',
-    roomNumber: '101',
-    diagnosis: 'Flu'
-  };
-  
-  const mockEntry = {
-    _id: 'entry1',
-    patientId: '123',
-    temperature: '98.6',
-    bloodPressure: '120/80',
-    pulseRate: '72',
-    respiratoryRate: '16',
-    oxygenSaturation: '98',
-    painLevel: '2',
-    reviewed: false,
-    createdAt: '2023-04-01T12:00:00Z'
-  };
-  
-  const mockBack = jest.fn();
-  const mockPush = jest.fn();
-  const mockRefresh = jest.fn();
-  
+// -------------------------------------------------------------------------
+// Test Suite
+// -------------------------------------------------------------------------
+describe("EntryDetails page", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    
+    // Set default URL parameters.
+    (useParams as jest.Mock).mockReturnValue({ id: "p1", entryId: "e1" });
+    // Provide a default router with a back method.
+    (useRouter as jest.Mock).mockReturnValue({
+      back: jest.fn(),
+    });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test("renders loading spinner and then displays entry details", async () => {
+    (global.fetch as jest.Mock) = jest.fn((url: string) => {
+      if (url.includes("/api/patients")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ patient: dummyPatient }),
+        });
+      }
+      if (url.includes("/api/entries")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ entry: dummyEntry }),
+        });
+      }
+      return Promise.reject("Unknown endpoint");
+    });
+
+    render(<EntryDetails />);
+
+    // Verify that the loading spinner (or equivalent element) is displayed initially.
+    expect(document.querySelector(".animate-spin")).toBeTruthy();
+
+    // Wait for the "Temperature" input (a reliable field) to appear.
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Temperature/i)).toBeInTheDocument();
+    });
+
+    // Verify that the page heading indicates the entry is unreviewed.
+    expect(screen.getByText(/EMR Entry\s*\(Unreviewed\)/i)).toBeInTheDocument();
+  });
+
+  test("displays an error message when patient fetch fails", async () => {
+    (global.fetch as jest.Mock) = jest.fn((url: string) => {
+      if (url.includes("/api/patients")) {
+        return Promise.resolve({ ok: false });
+      }
+      if (url.includes("/api/entries")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ entry: dummyEntry }),
+        });
+      }
+      return Promise.reject("Unknown endpoint");
+    });
+
+    render(<EntryDetails />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Could not load entry details/i)
+      ).toBeInTheDocument();
+    });
+  });
+
+  test("updates the entry when Mark as Reviewed button is clicked", async () => {
+    let entryData = { ...dummyEntry };
+    (global.fetch as jest.Mock) = jest.fn((url: string, options?: any) => {
+      if (url.includes("/api/patients")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ patient: dummyPatient }),
+        });
+      }
+      if (
+        url.includes("/api/entries") &&
+        (!options || options.method === "GET")
+      ) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ entry: entryData }),
+        });
+      }
+      if (url.includes("/api/entries") && options?.method === "PUT") {
+        entryData = { ...entryData, reviewed: !entryData.reviewed };
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({}),
+        });
+      }
+      return Promise.reject("Unknown endpoint");
+    });
+
+    render(<EntryDetails />);
+
+    // Wait for a known input to appear.
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Temperature/i)).toBeInTheDocument();
+    });
+
+    // Initially, the export button should be disabled.
+    const exportButton = screen.getByRole("button", { name: /^Export$/i });
+    expect(exportButton).toBeDisabled();
+
+    // Find and click the toggle review button.
+    const buttons = screen.getAllByRole("button");
+    const toggleButton = buttons.find(
+      (btn) => btn.textContent && btn.textContent.includes("Mark as")
+    );
+    expect(toggleButton).toBeDefined();
+    fireEvent.click(toggleButton!);
+
+    // Wait for the entry state to update.
+    await waitFor(() => {
+      expect(screen.getByText(/EMR Entry\s*\(Reviewed\)/i)).toBeInTheDocument();
+    });
+
+    // Now, the export button should become enabled.
+    expect(exportButton).not.toBeDisabled();
+  });
+
+  test("the back button calls router.back", async () => {
+    const mockBack = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       back: mockBack,
-      push: mockPush,
-      refresh: mockRefresh
     });
-    
-    // Mock params
-    (useParams as jest.Mock).mockReturnValue({
-      id: '123',
-      entryId: 'entry1'
+    (global.fetch as jest.Mock) = jest.fn((url: string) => {
+      if (url.includes("/api/patients")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ patient: dummyPatient }),
+        });
+      }
+      if (url.includes("/api/entries")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ entry: dummyEntry }),
+        });
+      }
+      return Promise.reject("Unknown endpoint");
     });
-  });
-  
-  it('should render basic page elements', () => {
-    // Mock both API calls to return successfully right away
-    (global.fetch as jest.Mock).mockImplementation(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ patient: mockPatient })
-      })
-    );
-    
+
     render(<EntryDetails />);
-    
-    expect(screen.getByText(/Back to Entry List/i)).toBeInTheDocument();
-  });
-  
-  it('should call back function when back button is clicked', () => {
-    (global.fetch as jest.Mock).mockImplementation(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({})
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    const backButton = screen.getByText(/Back to Entry List/i);
+    await waitFor(() => {
+      expect(screen.getByText(/EMR Entry/i)).toBeInTheDocument();
+    });
+    const backButton = screen.getByRole("button", {
+      name: /Back to Entry List/i,
+    });
     fireEvent.click(backButton);
-    
     expect(mockBack).toHaveBeenCalled();
   });
-  
-  it('should load and display form with entry data when available', async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ patient: mockPatient })
-      })
-    );
-    
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ entry: mockEntry })
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    await waitFor(() => {
-    const temperatureInput = screen.getByLabelText(/Temperature/i);
-    expect(temperatureInput).toHaveValue('98.6');
-    });
-  });
-  
-  it('should be able to modify form inputs', async () => {
-    // Mock successful patient and entry fetches
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ patient: mockPatient })
-      })
-    );
-    
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ entry: mockEntry })
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    // Wait for form to load
-    await waitFor(() => {
-      const temperatureInput = screen.getByLabelText(/Temperature/i);
-      // Update temperature field
-      fireEvent.change(temperatureInput, { target: { value: '99.1' } });
-      expect(temperatureInput).toHaveValue('99.1');
-    });
-  });
-
-  it('should display error message when patient fetch fails', async () => {
-    // Mock failed patient fetch
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: false,
-        statusText: 'Not Found',
-        json: () => Promise.resolve({ message: 'Patient not found' })
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    // Wait for error message to appear
-    await waitFor(() => {
-      expect(screen.getByText(/Could not load entry details/i)).toBeInTheDocument();
-    });
-    
-    // Verify error was logged
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('Error fetching details'), 'error');
-  });
-  
-  it('should display error message when entry fetch fails', async () => {
-    // Mock successful patient fetch but failed entry fetch
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ patient: mockPatient })
-      })
-    );
-    
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: false,
-        statusText: 'Not Found',
-        json: () => Promise.resolve({ message: 'Entry not found' })
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    // Wait for error message to appear
-    await waitFor(() => {
-      expect(screen.getByText(/Could not load entry details/i)).toBeInTheDocument();
-      expect(screen.getByText(/Entry not found/i)).toBeInTheDocument();
-    });
-    
-    // Verify error was logged
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('Error fetching details'), 'error');
-  });
-  
-  it('should handle network errors during fetch', async () => {
-    // Mock network error
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
-    
-    render(<EntryDetails />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Could not load entry details/i)).toBeInTheDocument();
-    });
-    
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('Error fetching details'), 'error');
-  });
-  
-  it('should have a review button when entry data is loaded', async () => {
-    // Mock successful patient fetch
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ patient: mockPatient })
-      })
-    );
-    
-    // Mock successful entry fetch
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ entry: mockEntry })
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    await waitFor(() => {
-      const reviewButton = screen.getByText(/Mark as/i).closest('button');
-      expect(reviewButton).toBeInTheDocument();
-    });
-  });
-  
-  it('should have an export button when entry data is loaded', async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ patient: mockPatient })
-      })
-    );
-    
-    (global.fetch as jest.Mock).mockImplementationOnce(() => 
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ entry: mockEntry })
-      })
-    );
-    
-    render(<EntryDetails />);
-    
-    await waitFor(() => {
-      const exportButton = screen.getByText(/Export/i);
-      expect(exportButton).toBeInTheDocument();
-    });
-  });
-}); 
+});

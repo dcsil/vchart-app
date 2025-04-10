@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.23% </span>
+                <span class="strong">84.27% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>188/218</span>
+                <span class='fraction'>193/229</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84.21% </span>
+                <span class="strong">82.05% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>32/38</span>
+                <span class='fraction'>32/39</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.23% </span>
+                <span class="strong">84.27% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>188/218</span>
+                <span class='fraction'>193/229</span>
             </div>
         
             
@@ -281,7 +281,18 @@
 <a name='L216'></a><a href='#L216'>216</a>
 <a name='L217'></a><a href='#L217'>217</a>
 <a name='L218'></a><a href='#L218'>218</a>
-<a name='L219'></a><a href='#L219'>219</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -370,7 +381,6 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -418,8 +428,18 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -473,10 +493,12 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -566,10 +588,10 @@ export async function GET(request: NextRequest) {
 // POST - Add a new entry
 export async function POST(request: NextRequest) {
   try {
-    // Get the authenticated user from the cookie
-    const username = request.cookies.get("auth-session")?.value;
+    // Get the authenticated user session string from the cookie
+    const sessionCookie = request.cookies.get("auth-session")?.value;
 &nbsp;
-    if (!username) {
+    if (!sessionCookie) {
       return NextResponse.json(
         { message: "Authentication required" },
         { status: 401 }
@@ -579,12 +601,11 @@ export async function POST(request: NextRequest) {
     // Parse the request body
     const {
       patientId,
-      temperature,
-      bloodPressure,
-      pulseRate,
-      respiratoryRate,
-      oxygenSaturation,
-      painLevel,
+      vitalSigns,
+      subjective,
+      objective,
+      assessment,
+      plan,
       transcript,
     } = await request.json();
 &nbsp;
@@ -611,12 +632,11 @@ export async function POST(request: NextRequest) {
 <span class="cstat-no" title="statement not covered" >    // Create new entry</span>
 <span class="cstat-no" title="statement not covered" >    const entry = new Entry({</span>
 <span class="cstat-no" title="statement not covered" >      patientId,</span>
-<span class="cstat-no" title="statement not covered" >      temperature,</span>
-<span class="cstat-no" title="statement not covered" >      bloodPressure,</span>
-<span class="cstat-no" title="statement not covered" >      pulseRate,</span>
-<span class="cstat-no" title="statement not covered" >      respiratoryRate,</span>
-<span class="cstat-no" title="statement not covered" >      oxygenSaturation,</span>
-<span class="cstat-no" title="statement not covered" >      painLevel,</span>
+<span class="cstat-no" title="statement not covered" >      vitalSigns,</span>
+<span class="cstat-no" title="statement not covered" >      subjective,</span>
+<span class="cstat-no" title="statement not covered" >      objective,</span>
+<span class="cstat-no" title="statement not covered" >      assessment,</span>
+<span class="cstat-no" title="statement not covered" >      plan,</span>
 <span class="cstat-no" title="statement not covered" >      transcript,</span>
 <span class="cstat-no" title="statement not covered" >    });</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -638,11 +658,22 @@ export async function POST(request: NextRequest) {
 <span class="cstat-no" title="statement not covered" >      { status: 201 }</span>
 <span class="cstat-no" title="statement not covered" >    );</span>
   } catch (error) {
-    log("Error adding entry: " + error, "error");
-    return NextResponse.json(
-      { message: "Failed to add entry" },
-      { status: 500 }
-    );
+    let errorMessage = "Failed to add entry";
+    if (error instanceof Error) {
+      if (error.name === "ValidationError") <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+<span class="cstat-no" title="statement not covered" >        errorMessage = `Validation Error: ${error.message}`;</span>
+<span class="cstat-no" title="statement not covered" >        log(</span>
+<span class="cstat-no" title="statement not covered" >          `Validation Error adding entry: ${JSON.stringify(</span>
+<span class="cstat-no" title="statement not covered" >            (error as mongoose.Error.ValidationError).errors</span>
+<span class="cstat-no" title="statement not covered" >          )}`,</span>
+<span class="cstat-no" title="statement not covered" >          "warn"</span>
+<span class="cstat-no" title="statement not covered" >        );</span>
+      } else {
+        errorMessage = `Failed to add entry: ${error.message}`;
+      }
+    }
+    log(`Error adding entry: ${error}`, "error");
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
 &nbsp;
@@ -663,13 +694,13 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const {
       id,
-      temperature,
-      bloodPressure,
-      pulseRate,
-      respiratoryRate,
-      oxygenSaturation,
-      painLevel,
+      vitalSigns,
+      subjective,
+      objective,
+      assessment,
+      plan,
       reviewed,
+      transcript,
     } = data;
 &nbsp;
     if (!id) {
@@ -690,14 +721,16 @@ export async function PUT(request: NextRequest) {
     }
 &nbsp;
     // Update only fields that are provided
-    if (temperature !== undefined) entry.temperature = temperature;
-    if (bloodPressure !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.bloodPressure = bloodPressure;</span>
-    if (pulseRate !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.pulseRate = pulseRate;</span>
-    if (respiratoryRate !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.respiratoryRate = respiratoryRate;</span>
-    if (oxygenSaturation !== undefined)
-<span class="branch-0 cbranch-no" title="branch not covered" >      entry.oxygenSaturation = oxygenSaturation;</span>
-    if (painLevel !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.painLevel = painLevel;</span>
+    if (vitalSigns !== undefined)
+      entry.vitalSigns = { ...entry.vitalSigns, ...vitalSigns };
+    if (subjective !== undefined)
+<span class="branch-0 cbranch-no" title="branch not covered" >      entry.subjective = { ...entry.subjective, ...subjective };</span>
+    if (objective !== undefined)
+<span class="branch-0 cbranch-no" title="branch not covered" >      entry.objective = { ...entry.objective, ...objective };</span>
+    if (assessment !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.assessment = assessment;</span>
+    if (plan !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.plan = plan;</span>
     if (reviewed !== undefined) entry.reviewed = reviewed;
+    if (transcript !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >entry.transcript = transcript;</span>
 &nbsp;
     // Save the updated entry
     await entry.save();
@@ -724,7 +757,7 @@ export async function PUT(request: NextRequest) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-09T19:59:14.977Z
+                at 2025-04-10T00:58:42.493Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
