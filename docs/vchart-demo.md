@@ -98,6 +98,8 @@ While a full HIPAA-compliant deployment includes many **administrative and physi
 
 As part of our CI pipeline, we’ve integrated tools to **enforce and measure code quality**, helping us maintain a clean, maintainable, and reliable codebase.
 
+> **CI Run Example**: [GitHub Actions – Tests](https://github.com/dcsil/vchart-app/actions/runs/14370116124/job/40291479501)  
+
 
 ### Linting – ESLint
 
@@ -108,7 +110,6 @@ We use **[ESLint](https://eslint.org/)** to catch bugs, enforce consistent codin
 - Catches potential bugs early in development
 
 **Status**: Fully integrated in CI  
-**CI Run Example**: [GitHub Actions – ESLint Check](https://github.com/dcsil/vchart-app/actions/runs/14370116124/job/40291479501)  
 **Satisfaction**: Satisfactory — ensures team-wide consistency and high-quality code before merge.
 
 ---
@@ -120,8 +121,6 @@ We use **Jest** and **React Testing Library** to test both frontend components a
 **Statement Coverage**: **76.06%**  
 > Out of 2,699 total statements, 2,053 are executed by our test suite.  
 > 📊 [View Full HTML Report](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dcsil/vchart-app/main/coverage/lcov-report/index.html)
-
-> **CI Run Example**: [GitHub Actions – Tests](https://github.com/dcsil/vchart-app/actions/runs/14370116124/job/40291479501)  
 
 - We aim to improve **branch and function coverage** in upcoming iterations
 
