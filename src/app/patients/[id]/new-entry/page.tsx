@@ -139,7 +139,7 @@ export default function NewEntry() {
           console.error("Error parsing Cohere response:", error);
         }
       }
-    }, 1000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [transcript, interimResult]);
