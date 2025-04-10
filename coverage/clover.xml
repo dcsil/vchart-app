@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1744245969732" clover="3.2.0">
-  <project timestamp="1744245969732" name="All files">
-    <metrics statements="4212" coveredstatements="3575" conditionals="396" coveredconditionals="309" methods="118" coveredmethods="79" elements="4726" coveredelements="3963" complexity="0" loc="4212" ncloc="4212" packages="20" files="25" classes="25"/>
+<coverage generated="1744246722695" clover="3.2.0">
+  <project timestamp="1744246722695" name="All files">
+    <metrics statements="4212" coveredstatements="3577" conditionals="398" coveredconditionals="312" methods="118" coveredmethods="79" elements="4728" coveredelements="3968" complexity="0" loc="4212" ncloc="4212" packages="20" files="25" classes="25"/>
     <package name="src">
       <metrics statements="72" coveredstatements="64" conditionals="15" coveredconditionals="15" methods="2" coveredmethods="1"/>
       <file name="instrumentation.ts" path="C:\Users\khush\OneDrive\Desktop\University of Toronto\Year 4\CSC491\vchart-app\src\instrumentation.ts">
@@ -4068,25 +4068,25 @@
       </file>
     </package>
     <package name="src.app.utils">
-      <metrics statements="16" coveredstatements="16" conditionals="3" coveredconditionals="3" methods="1" coveredmethods="1"/>
+      <metrics statements="16" coveredstatements="16" conditionals="5" coveredconditionals="5" methods="1" coveredmethods="1"/>
       <file name="log.ts" path="C:\Users\khush\OneDrive\Desktop\University of Toronto\Year 4\CSC491\vchart-app\src\app\utils\log.ts">
-        <metrics statements="16" coveredstatements="16" conditionals="3" coveredconditionals="3" methods="1" coveredmethods="1"/>
+        <metrics statements="16" coveredstatements="16" conditionals="5" coveredconditionals="5" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="cond" truecount="1" falsecount="0"/>
-        <line num="2" count="3" type="stmt"/>
-        <line num="3" count="3" type="stmt"/>
-        <line num="4" count="3" type="stmt"/>
-        <line num="5" count="3" type="stmt"/>
-        <line num="6" count="3" type="stmt"/>
-        <line num="7" count="3" type="stmt"/>
-        <line num="8" count="3" type="stmt"/>
-        <line num="9" count="3" type="cond" truecount="1" falsecount="0"/>
-        <line num="10" count="1" type="stmt"/>
-        <line num="11" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="13" count="3" type="cond" truecount="1" falsecount="0"/>
-        <line num="14" count="2" type="stmt"/>
-        <line num="15" count="2" type="stmt"/>
-        <line num="16" count="3" type="stmt"/>
+        <line num="2" count="7" type="stmt"/>
+        <line num="3" count="7" type="stmt"/>
+        <line num="4" count="7" type="stmt"/>
+        <line num="5" count="7" type="stmt"/>
+        <line num="6" count="7" type="stmt"/>
+        <line num="7" count="7" type="stmt"/>
+        <line num="8" count="7" type="stmt"/>
+        <line num="9" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="10" count="5" type="cond" truecount="1" falsecount="0"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="13" count="7" type="cond" truecount="1" falsecount="0"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="15" count="3" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
       </file>
     </package>
     <package name="src.lib">
@@ -4134,7 +4134,7 @@
       </file>
     </package>
     <package name="src.lib.models">
-      <metrics statements="204" coveredstatements="202" conditionals="3" coveredconditionals="2" methods="0" coveredmethods="0"/>
+      <metrics statements="204" coveredstatements="204" conditionals="3" coveredconditionals="3" methods="0" coveredmethods="0"/>
       <file name="Entry.ts" path="C:\Users\khush\OneDrive\Desktop\University of Toronto\Year 4\CSC491\vchart-app\src\lib\models\Entry.ts">
         <metrics statements="109" coveredstatements="109" conditionals="1" coveredconditionals="1" methods="0" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
@@ -4308,7 +4308,7 @@
         <line num="57" count="1" type="stmt"/>
       </file>
       <file name="User.ts" path="C:\Users\khush\OneDrive\Desktop\University of Toronto\Year 4\CSC491\vchart-app\src\lib\models\User.ts">
-        <metrics statements="38" coveredstatements="36" conditionals="1" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <metrics statements="38" coveredstatements="38" conditionals="1" coveredconditionals="1" methods="0" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -4340,9 +4340,9 @@
         <line num="29" count="1" type="stmt"/>
         <line num="30" count="1" type="stmt"/>
         <line num="31" count="1" type="stmt"/>
-        <line num="32" count="1" type="cond" truecount="0" falsecount="1"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
+        <line num="32" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
         <line num="35" count="1" type="stmt"/>
         <line num="36" count="1" type="stmt"/>
         <line num="37" count="1" type="stmt"/>

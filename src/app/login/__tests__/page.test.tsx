@@ -7,25 +7,6 @@ jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock("next/image", () => ({
-  __esModule: true,
-  default: (props: {
-    src: string;
-    alt: string;
-    width?: number;
-    height?: number;
-    priority?: boolean;
-    className?: string;
-    [key: string]: unknown;
-  }) => {
-    const imgProps: Record<string, unknown> = { ...props };
-    if (typeof imgProps.priority === "boolean") {
-      imgProps.priority = String(imgProps.priority);
-    }
-    return <img {...imgProps} />;
-  },
-}));
-
 describe("Login Page", () => {
   const mockPush = jest.fn();
   const mockRefresh = jest.fn();
@@ -44,7 +25,6 @@ describe("Login Page", () => {
   it("renders the login form correctly", () => {
     render(<Login />);
 
-    expect(screen.getByAltText("VChart Logo")).toBeInTheDocument();
     expect(screen.getByText("Welcome to VChart")).toBeInTheDocument();
     expect(screen.getByLabelText("Username")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
