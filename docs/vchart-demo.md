@@ -118,8 +118,8 @@ We use **[ESLint](https://eslint.org/)** to catch bugs, enforce consistent codin
 
 We use **Jest** and **React Testing Library** to test both frontend components and backend logic. 
 
-**Statement Coverage**: **76.06%**  
-> Out of 2,699 total statements, 2,053 are executed by our test suite.  
+**Statement Coverage**: **84.92%**  
+> Out of 4212 total statements, 3577 are executed by our test suite.  
 > 📊 [View Full HTML Report](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dcsil/vchart-app/main/coverage/lcov-report/index.html)
 
 - We aim to improve **branch and function coverage** in upcoming iterations
