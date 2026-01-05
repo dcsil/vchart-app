@@ -19,7 +19,7 @@
     "cohere-ai": "^7.16.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
-    "jspdf": "^3.0.1",
+    "jspdf": "^4.0.0",
     "lucide-react": "^0.484.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.43.0",
     "mongoose": "^8.9.7",
